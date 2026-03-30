@@ -3,7 +3,8 @@
 ## 环境要求
 
 ```bash
-pip install transformers torch owlready2 rdflib numpy tqdm accelerate bitsandbytes
+pip install transformers  owlready2 rdflib numpy tqdm accelerate bitsandbytes
+pip torch
 ```
 
 ---

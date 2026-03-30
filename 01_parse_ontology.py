@@ -80,11 +80,13 @@ def parse_owl(owl_path: str) -> list[dict]:
 
 
 if __name__ == "__main__":
+    import os
     parser = argparse.ArgumentParser()
     parser.add_argument("--owl", required=True)
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
 
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
     entities = parse_owl(args.owl)
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(entities, f, ensure_ascii=False, indent=2)
