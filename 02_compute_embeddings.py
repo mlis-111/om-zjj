@@ -125,12 +125,15 @@ def get_embeddings_causal(texts: list[str], tokenizer, model, device,
 
 
 if __name__ == "__main__":
+    import os
     parser = argparse.ArgumentParser()
     parser.add_argument("--entities", required=True, help="实体JSON文件路径")
     parser.add_argument("--model", required=True, choices=["biobert", "biogpt", "biomistral"])
     parser.add_argument("--out", required=True, help="输出npy路径")
     parser.add_argument("--gpu", type=int, default=0)
     args = parser.parse_args()
+
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
 
     # 读取实体文本
     with open(args.entities, encoding="utf-8") as f:

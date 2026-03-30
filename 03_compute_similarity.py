@@ -57,6 +57,7 @@ def build_entity_index(src_entities: list, tgt_entities: list) -> dict:
 
 
 if __name__ == "__main__":
+    import os
     parser = argparse.ArgumentParser()
     parser.add_argument("--src_emb",      required=True)
     parser.add_argument("--tgt_emb",      required=True)
@@ -65,6 +66,9 @@ if __name__ == "__main__":
     parser.add_argument("--out",          required=True, help="相似度矩阵npy输出路径")
     parser.add_argument("--index",        required=True, help="entity_index.json输出路径")
     args = parser.parse_args()
+
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    os.makedirs(os.path.dirname(args.index), exist_ok=True)
 
     src_emb = np.load(args.src_emb)
     tgt_emb = np.load(args.tgt_emb)
