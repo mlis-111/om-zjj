@@ -89,18 +89,18 @@ def load_model(model_name: str, gpu_id: int):
             bnb_4bit_use_double_quant=True,
             bnb_4bit_quant_type="nf4",
         )
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
         model = AutoModelForCausalLM.from_pretrained(
             model_path,
             quantization_config=bnb_config,
             device_map={"": gpu_id},
         )
     elif model_name in CAUSAL_MODELS:
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
         model = AutoModelForCausalLM.from_pretrained(model_path).to(device)
         model.eval()
     else:
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
         model = AutoModel.from_pretrained(model_path).to(device)
         model.eval()
 
