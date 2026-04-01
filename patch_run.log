@@ -1,20 +1,0 @@
-nohup: ignoring input
-=== 补跑 biomedlm + pmcllama ===
-[GPU 1] pmcllama src...
-实体数量: 2744，使用GPU: 1，模型: pmcllama
-Fetching 6 files:   0%|          | 0/6 [00:00<?, ?it/s]Fetching 6 files:  17%|█▋        | 1/6 [56:12<4:41:01, 3372.31s/it]Fetching 6 files:  33%|███▎      | 2/6 [57:45<1:36:14, 1443.64s/it]Fetching 6 files: 100%|██████████| 6/6 [57:45<00:00, 577.65s/it]   
-The following generation flags are not valid and may be ignored: ['pad_token_id']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-Traceback (most recent call last):
-  File "/data/zjj/om-zjj/02_compute_embeddings.py", line 196, in <module>
-    tokenizer, model, device = load_model(args.model, args.gpu)
-  File "/data/zjj/om-zjj/02_compute_embeddings.py", line 107, in load_model
-    model = AutoModelForCausalLM.from_pretrained(
-  File "/home/tylg-jsjxy/miniconda3/envs/zjj/lib/python3.10/site-packages/transformers/models/auto/auto_factory.py", line 381, in from_pretrained
-    return model_class.from_pretrained(
-  File "/home/tylg-jsjxy/miniconda3/envs/zjj/lib/python3.10/site-packages/transformers/modeling_utils.py", line 4130, in from_pretrained
-    loading_info, disk_offload_index = cls._load_pretrained_model(model, state_dict, checkpoint_files, load_config)
-  File "/home/tylg-jsjxy/miniconda3/envs/zjj/lib/python3.10/site-packages/transformers/modeling_utils.py", line 4210, in _load_pretrained_model
-    caching_allocator_warmup(model, expanded_device_map, load_config.hf_quantizer)
-  File "/home/tylg-jsjxy/miniconda3/envs/zjj/lib/python3.10/site-packages/transformers/modeling_utils.py", line 4827, in caching_allocator_warmup
-    _ = torch.empty(int(byte_count // 2), dtype=torch.float16, device=device, requires_grad=False)
-torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 7.13 GiB. GPU 1 has a total capacity of 23.52 GiB of which 6.80 GiB is free. Process 3221112 has 16.29 GiB memory in use. Including non-PyTorch memory, this process has 386.00 MiB memory in use. Of the allocated memory 0 bytes is allocated by PyTorch, and 0 bytes is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
