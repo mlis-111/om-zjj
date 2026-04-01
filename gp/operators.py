@@ -579,8 +579,8 @@ def apply_filter(method: str,
 # 所有过滤方法名称列表（用于GP随机选择）
 ALL_FILTER_METHODS = [
     "fixed_threshold", "max_value", "median", "mean", "var_mean", "top_k",
-    "structure_filter", "kde", "kmeans",
-    "nde", "stable_marriage", "hungarian", "ant_colony", "random_hill_climbing",
+    "kde", "kmeans",
+    "nde", "stable_marriage", "hungarian", "random_hill_climbing",
 ]
 
 # 各方法默认参数
