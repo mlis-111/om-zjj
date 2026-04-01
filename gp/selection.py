@@ -86,6 +86,11 @@ def compute_reliability(individual: "Individual",
     if len(alignment) < 2:
         return 1.0
 
+    # 采样限制：避免O(|A|²)在大对齐时爆炸，500对足够估计冲突率
+    import random as _random
+    if len(alignment) > 500:
+        alignment = _random.sample(alignment, 500)
+
     total_comparisons = 0
     conflict_count = 0
     src_hier = data.src_hierarchy
@@ -150,18 +155,14 @@ def three_stage_tournament(population: List["Individual"],
     if len(survivors_1) == 1:
         return survivors_1[0]
 
-    # ---- 第二阶段（4→2）：动态权重综合得分（多样性+可靠性）----
-    w_div, w_rel = cosine_annealing_weights(gen, max_gen)
+    # ---- 第二阶段（4→2）：按多样性选择 ----
     random.shuffle(survivors_1)
     survivors_2 = []
     for i in range(0, len(survivors_1) - 1, 2):
         a, b = survivors_1[i], survivors_1[i + 1]
-        score_a = w_div * compute_diversity(a) + w_rel * compute_reliability(a, data)
-        score_b = w_div * compute_diversity(b) + w_rel * compute_reliability(b, data)
-        survivors_2.append(a if score_a >= score_b else b)
+        survivors_2.append(a if compute_diversity(a) >= compute_diversity(b) else b)
     if len(survivors_1) % 2 == 1:
         survivors_2.append(survivors_1[-1])
-
     if len(survivors_2) == 1:
         return survivors_2[0]
 

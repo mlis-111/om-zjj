@@ -1,0 +1,59 @@
+[DEBUG模式] population=10, generations=5
+
+=== 加载数据 ===
+实体数量: src=2744, tgt=3304
+  加载 biobert: shape=(2744, 3304), mean=0.7513, std=0.0710
+  加载 pubmedbert: shape=(2744, 3304), mean=0.8564, std=0.0369
+  加载 sapbert: shape=(2744, 3304), mean=0.3283, std=0.1421
+  加载 bioelectra: shape=(2744, 3304), mean=0.5850, std=0.1729
+  加载 scibert: shape=(2744, 3304), mean=0.6846, std=0.0930
+  加载 clinicalbert: shape=(2744, 3304), mean=0.7798, std=0.0665
+  加载 biogpt: shape=(2744, 3304), mean=0.2601, std=0.2014
+  加载 biogpt_large: shape=(2744, 3304), mean=0.0967, std=0.2604
+  加载 biomistral: shape=(2744, 3304), mean=0.3485, std=0.1496
+  加载 biomedlm: shape=(2744, 3304), mean=0.3173, std=0.1953
+  加载 pmcllama: shape=(2744, 3304), mean=0.1488, std=0.1666
+  加载 distilbert: shape=(2744, 3304), mean=0.9229, std=0.0291
+  加载 tinybert: shape=(2744, 3304), mean=0.9307, std=0.0373
+  加载 umlsbert: shape=(2744, 3304), mean=0.5280, std=0.0792
+  加载 biolinkbert: shape=(2744, 3304), mean=0.7563, std=0.1408
+  加载 biomedbert: shape=(2744, 3304), mean=0.8597, std=0.0423
+  加载 pubmedbert_emb: shape=(2744, 3304), mean=0.3016, std=0.1232
+  加载 e5base: shape=(2744, 3304), mean=0.7853, std=0.0501
+共加载 18 个相似度矩阵
+加载层次关系...
+  src: 2744实体, 2856条is-a, 1637条part-of
+  tgt: 3304实体, 3761条is-a, 1662条part-of
+加载标准对齐...
+  标准对齐数量: 1516
+
+=== 构建PSA ===
+PSA构建完成: 92 个锚点对 (delta=0.3)
+
+=== 开始GP进化 ===
+
+==================================================
+GP进化开始
+种群大小=10, 最大代数=5
+模型数=18, 过滤方法数=12
+PSA大小=92
+==================================================
+
+Gen   1/5 | best=0.0915 | gen_best=0.0915 | mean=0.0156 | time=46.3s
+Gen   2/5 | best=0.1297 | gen_best=0.1297 | mean=0.0439 | time=37.6s
+Gen   3/5 | best=0.1469 | gen_best=0.1469 | mean=0.0499 | time=31.5s
+Gen   4/5 | best=0.1846 | gen_best=0.1846 | mean=0.0894 | time=33.9s
+Gen   5/5 | best=0.2143 | gen_best=0.2143 | mean=0.1044 | time=36.6s
+
+进化完成，总耗时: 254.1s
+最优个体: Individual(fitness=0.2143, c_nodes=7, f_nodes=3, models=['distilbert', 'biomedlm', 'sapbert', 'distilbert'])
+
+最终评估结果（完整标准对齐）:
+  Precision: 0.6555
+  Recall:    0.5284
+  F1:        0.5851
+
+=== 最终评估 ===
+Precision: 0.6555
+Recall:    0.5284
+F1:        0.5851
