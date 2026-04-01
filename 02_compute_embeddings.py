@@ -181,6 +181,7 @@ def get_embeddings_causal(texts: list, tokenizer, model, device,
 
 
 if __name__ == "__main__":
+    import os
     parser = argparse.ArgumentParser()
     parser.add_argument("--entities", required=True, help="实体JSON文件路径")
     parser.add_argument("--model",    required=True, choices=list(MODEL_MAP.keys()))
