@@ -13,116 +13,84 @@ echo "=== Step 1: 解析本体 ==="
 python 01_parse_ontology.py --owl data/oaei/anatomy/mouse.owl --out $PARSED/mouse.json
 python 01_parse_ontology.py --owl data/oaei/anatomy/human.owl  --out $PARSED/human.json
 
-echo "=== Step 2: 计算Embedding ==="
-# 共13个模型，只有GPU 0和GPU 1
-# GPU 0：字符串类（biobert/pubmedbert/sapbert/bioelectra/scibert/clinicalbert）+ 语义类部分
-# GPU 1：结构类（biogpt/biomistral）+ 语义类其余
-# biomistral单独占GPU 1，跑完后再跑其他
-# 两组并行，组内串行
+# echo "=== Step 2: 计算Embedding ==="
+# # 共19个模型，GPU 0和GPU 1并行
+# # GPU 0：字符串类6个 + 语义类7个（全是BERT级别，快）
+# # GPU 1：结构类6个（biogpt/biogpt_large是小模型，4个7B模型串行跑）
+# # 两组并行，组内串行
 
-# GPU 0：字符串类6个 + 语义类3个（distilbert/tinybert/umlsbert）
-(
-  echo "[GPU 0] biobert src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model biobert \
-      --out $EMB/biobert_src_emb.npy --gpu 0
-  echo "[GPU 0] biobert tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model biobert \
-      --out $EMB/biobert_tgt_emb.npy --gpu 0
+# # ---- GPU 0：字符串类 + 语义类 ----
+# (
+#   # 字符串类
+#   for model in biobert pubmedbert sapbert bioelectra scibert clinicalbert; do
+#     echo "[GPU 0] ${model} src..."
+#     python 02_compute_embeddings.py --entities $PARSED/mouse.json --model $model \
+#         --out $EMB/${model}_src_emb.npy --gpu 0
+#     echo "[GPU 0] ${model} tgt..."
+#     python 02_compute_embeddings.py --entities $PARSED/human.json --model $model \
+#         --out $EMB/${model}_tgt_emb.npy --gpu 0
+#   done
 
-  echo "[GPU 0] pubmedbert src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model pubmedbert \
-      --out $EMB/pubmedbert_src_emb.npy --gpu 0
-  echo "[GPU 0] pubmedbert tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model pubmedbert \
-      --out $EMB/pubmedbert_tgt_emb.npy --gpu 0
+#   # 语义类
+#   for model in distilbert tinybert umlsbert biolinkbert biomedbert pubmedbert_emb e5base; do
+#     echo "[GPU 0] ${model} src..."
+#     python 02_compute_embeddings.py --entities $PARSED/mouse.json --model $model \
+#         --out $EMB/${model}_src_emb.npy --gpu 0
+#     echo "[GPU 0] ${model} tgt..."
+#     python 02_compute_embeddings.py --entities $PARSED/human.json --model $model \
+#         --out $EMB/${model}_tgt_emb.npy --gpu 0
+#   done
+# ) &
 
-  echo "[GPU 0] sapbert src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model sapbert \
-      --out $EMB/sapbert_src_emb.npy --gpu 0
-  echo "[GPU 0] sapbert tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model sapbert \
-      --out $EMB/sapbert_tgt_emb.npy --gpu 0
+# # ---- GPU 1：结构类 ----
+# (
+#   # 小生成式模型（biogpt/biogpt_large）
+#   for model in biogpt biogpt_large; do
+#     echo "[GPU 1] ${model} src..."
+#     python 02_compute_embeddings.py --entities $PARSED/mouse.json --model $model \
+#         --out $EMB/${model}_src_emb.npy --gpu 1
+#     echo "[GPU 1] ${model} tgt..."
+#     python 02_compute_embeddings.py --entities $PARSED/human.json --model $model \
+#         --out $EMB/${model}_tgt_emb.npy --gpu 1
+#   done
 
-  echo "[GPU 0] bioelectra src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model bioelectra \
-      --out $EMB/bioelectra_src_emb.npy --gpu 0
-  echo "[GPU 0] bioelectra tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model bioelectra \
-      --out $EMB/bioelectra_tgt_emb.npy --gpu 0
+#   # 7B大模型（4bit量化，串行跑避免显存冲突）
+#   for model in biomistral biomedgpt meditron medalpaca; do
+#     echo "[GPU 1] ${model} src..."
+#     python 02_compute_embeddings.py --entities $PARSED/mouse.json --model $model \
+#         --out $EMB/${model}_src_emb.npy --gpu 1
+#     echo "[GPU 1] ${model} tgt..."
+#     python 02_compute_embeddings.py --entities $PARSED/human.json --model $model \
+#         --out $EMB/${model}_tgt_emb.npy --gpu 1
+#   done
+# ) &
 
-  echo "[GPU 0] scibert src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model scibert \
-      --out $EMB/scibert_src_emb.npy --gpu 0
-  echo "[GPU 0] scibert tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model scibert \
-      --out $EMB/scibert_tgt_emb.npy --gpu 0
+# echo "=== 补跑 biomedlm + pmcllama ==="
 
-  echo "[GPU 0] clinicalbert src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model clinicalbert \
-      --out $EMB/clinicalbert_src_emb.npy --gpu 0
-  echo "[GPU 0] clinicalbert tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model clinicalbert \
-      --out $EMB/clinicalbert_tgt_emb.npy --gpu 0
+# # GPU 1：biomedlm先跑（~5GB，fp16），再跑pmcllama（13B，4bit量化）
+# (
+#   echo "[GPU 1] biomedlm src..."
+#   python 02_compute_embeddings.py --entities $PARSED/mouse.json --model biomedlm \
+#       --out $EMB/biomedlm_src_emb.npy --gpu 1
+#   echo "[GPU 1] biomedlm tgt..."
+#   python 02_compute_embeddings.py --entities $PARSED/human.json --model biomedlm \
+#       --out $EMB/biomedlm_tgt_emb.npy --gpu 1
 
-  echo "[GPU 0] distilbert src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model distilbert \
-      --out $EMB/distilbert_src_emb.npy --gpu 0
-  echo "[GPU 0] distilbert tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model distilbert \
-      --out $EMB/distilbert_tgt_emb.npy --gpu 0
-
-  echo "[GPU 0] tinybert src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model tinybert \
-      --out $EMB/tinybert_src_emb.npy --gpu 0
-  echo "[GPU 0] tinybert tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model tinybert \
-      --out $EMB/tinybert_tgt_emb.npy --gpu 0
-
-  echo "[GPU 0] umlsbert src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model umlsbert \
-      --out $EMB/umlsbert_src_emb.npy --gpu 0
-  echo "[GPU 0] umlsbert tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model umlsbert \
-      --out $EMB/umlsbert_tgt_emb.npy --gpu 0
-) &
-
-# GPU 1：结构类2个（biogpt/biomistral）+ 语义类2个（bluebert/biolinkbert）
-# biomistral是7B模型放最后跑，避免显存影响前面的模型
-(
-  echo "[GPU 1] biogpt src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model biogpt \
-      --out $EMB/biogpt_src_emb.npy --gpu 1
-  echo "[GPU 1] biogpt tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model biogpt \
-      --out $EMB/biogpt_tgt_emb.npy --gpu 1
-
-  echo "[GPU 1] bluebert src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model bluebert \
-      --out $EMB/bluebert_src_emb.npy --gpu 1
-  echo "[GPU 1] bluebert tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model bluebert \
-      --out $EMB/bluebert_tgt_emb.npy --gpu 1
-
-  echo "[GPU 1] biolinkbert src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model biolinkbert \
-      --out $EMB/biolinkbert_src_emb.npy --gpu 1
-  echo "[GPU 1] biolinkbert tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model biolinkbert \
-      --out $EMB/biolinkbert_tgt_emb.npy --gpu 1
-
-  echo "[GPU 1] biomistral src..."
-  python 02_compute_embeddings.py --entities $PARSED/mouse.json --model biomistral \
-      --out $EMB/biomistral_src_emb.npy --gpu 1
-  echo "[GPU 1] biomistral tgt..."
-  python 02_compute_embeddings.py --entities $PARSED/human.json --model biomistral \
-      --out $EMB/biomistral_tgt_emb.npy --gpu 1
-) &
+#   echo "[GPU 1] pmcllama src..."
+#   python 02_compute_embeddings.py --entities $PARSED/mouse.json --model pmcllama \
+#       --out $EMB/pmcllama_src_emb.npy --gpu 0
+#   echo "[GPU 1] pmcllama tgt..."
+#   python 02_compute_embeddings.py --entities $PARSED/human.json --model pmcllama \
+#       --out $EMB/pmcllama_tgt_emb.npy --gpu 0
+# )
 
 wait
 echo "所有Embedding计算完成"
 
 echo "=== Step 3: 计算相似度矩阵 ==="
-ALL_MODELS="biobert pubmedbert sapbert bioelectra scibert clinicalbert biogpt biomistral distilbert bluebert tinybert biolinkbert umlsbert"
+ALL_MODELS="biobert pubmedbert sapbert bioelectra scibert clinicalbert \
+            biogpt biogpt_large biomistral biomedlm pmcllama \
+            distilbert tinybert umlsbert biolinkbert biomedbert pubmedbert_emb e5base"
 
 for model in $ALL_MODELS; do
     echo "计算 ${model} 相似度矩阵..."
