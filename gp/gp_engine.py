@@ -8,64 +8,13 @@ from typing import Dict, List, Optional, Set, Tuple
 import numpy as np
 
 from gp.crossover import subtree_crossover
-from gp.fitness import evaluate_population, evaluate_individual
-from gp.individual import Individual, CombinationNode, FilterNode, create_population
+from gp.fitness import evaluate_population, evaluate_individual, clear_cache, cache_size
+from gp.individual import Individual, create_population
 from gp.mutation import adaptive_mutate_population
 from gp.selection import three_stage_tournament, elite_selection
-from gp.operators import ALL_FILTER_METHODS, FILTER_DEFAULT_PARAMS
-from utils.data_loader import ALL_MODELS, LLM_TYPE_MAP, OMData
+from gp.operators import ALL_FILTER_METHODS
+from utils.data_loader import ALL_MODELS, OMData
 from utils.evaluator import evaluate
-
-
-def _build_seed_individuals() -> List[Individual]:
-    """
-    构建手工设计的种子个体。
-    基于穷举搜索发现的最优组合：
-      过滤树固定为 intersection(top_k, hungarian)
-      组合树使用发现的Top模型对和算术操作
-    """
-    # 种子：(op, model1, model2)，按F1降序排列
-    seed_configs = [
-        ("avg", "sapbert", "umlsbert"),
-        ("mul", "sapbert", "umlsbert"),
-        ("mul", "umlsbert", "pubmedbert_emb"),
-        ("mul", "sapbert", "pubmedbert_emb"),
-        ("mul", "pubmedbert_emb", "e5base"),
-        ("avg", "sapbert", "e5base"),
-        ("mul", "sapbert", "e5base"),
-        ("avg", "umlsbert", "pubmedbert_emb"),
-        ("avg", "sapbert", "pubmedbert_emb"),
-        ("mul", "clinicalbert", "sapbert"),
-    ]
-
-    def make_filter_tree():
-        """固定过滤树：intersection(top_k, hungarian)"""
-        return FilterNode(
-            logic_op="intersection",
-            left=FilterNode(
-                filter_method="top_k",
-                filter_params=FILTER_DEFAULT_PARAMS["top_k"].copy()
-            ),
-            right=FilterNode(
-                filter_method="hungarian",
-                filter_params=FILTER_DEFAULT_PARAMS["hungarian"].copy()
-            ),
-        )
-
-    seeds = []
-    for op, m1, m2 in seed_configs:
-        ind = Individual(
-            combination_tree=CombinationNode(
-                op_name=op,
-                left=CombinationNode(model_name=m1),
-                right=CombinationNode(model_name=m2),
-            ),
-            filter_tree=make_filter_tree(),
-            llm_type_map=LLM_TYPE_MAP.copy(),
-        )
-        seeds.append(ind)
-
-    return seeds
 
 
 def run_gp(data: OMData,
@@ -83,7 +32,24 @@ def run_gp(data: OMData,
            verbose: bool = True) -> Tuple[Individual, List[Dict]]:
     """
     运行GP进化，返回最优个体和每代日志。
-    初始种群包含手工设计的种子个体，保证每次实验都有高质量起点。
+
+    Args:
+        data:             OMData
+        psa:              部分标准对齐
+        population_size:  种群大小
+        max_generations:  最大代数
+        crossover_rate:   交叉概率
+        mutation_rate:    变异概率
+        elite_ratio:      精英保留比例
+        tournament_size:  锦标赛大小
+        min_depth:        最小树深度
+        max_depth:        最大树深度
+        available_models: 可用模型列表
+        available_filters:可用过滤方法列表
+        verbose:          是否打印进化日志
+
+    Returns:
+        (best_individual, generation_logs)
     """
     if available_models is None:
         available_models = ALL_MODELS
@@ -91,6 +57,9 @@ def run_gp(data: OMData,
         available_filters = ALL_FILTER_METHODS
 
     n_elite = max(1, int(population_size * elite_ratio))
+
+    # 清空上一次实验的缓存
+    clear_cache()
 
     if verbose:
         print(f"\n{'='*50}")
@@ -100,19 +69,11 @@ def run_gp(data: OMData,
         print(f"PSA大小={len(psa)}")
         print(f"{'='*50}\n")
 
-    # 初始化随机种群
+    # 完全随机初始化种群
     population = create_population(
         population_size, available_models, available_filters,
         min_depth, max_depth
     )
-
-    # 加入手工种子个体（替换等量随机个体）
-    seeds = _build_seed_individuals()
-    n_seeds = min(len(seeds), len(population))
-    for i in range(n_seeds):
-        population[i] = seeds[i]
-    if verbose:
-        print(f"加入 {n_seeds} 个种子个体")
 
     t_start = time.time()
     evaluate_population(population, data, psa)
@@ -123,11 +84,13 @@ def run_gp(data: OMData,
     for gen in range(max_generations):
         t_gen = time.time()
 
-        elites = elite_selection(population, elite_ratio)
+        # 精英保留
+        elites      = elite_selection(population, elite_ratio)
         elite_copies = [e.clone() for e in elites]
 
+        # 交叉产生子代
         new_population = []
-        n_offspring = population_size - n_elite
+        n_offspring    = population_size - n_elite
         while len(new_population) < n_offspring:
             parent_a = three_stage_tournament(
                 population, gen, max_generations, data, tournament_size
@@ -142,19 +105,24 @@ def run_gp(data: OMData,
             if len(new_population) < n_offspring:
                 new_population.append(child_b)
 
+        # 自适应变异
         adaptive_mutate_population(
             new_population, gen, mutation_rate,
             available_models, available_filters, max_depth
         )
 
+        # 评估新个体（缓存加速）
         evaluate_population(new_population, data, psa)
 
+        # 合并精英和新种群
         population = elite_copies + new_population
 
+        # 更新全局最优
         gen_best = max(population, key=lambda x: x.fitness)
         if gen_best.fitness > best_individual.fitness:
             best_individual = gen_best.clone()
 
+        # 统计
         fitnesses = [ind.fitness for ind in population]
         gen_log = {
             "gen":      gen + 1,
@@ -171,6 +139,7 @@ def run_gp(data: OMData,
                   f"best={best_individual.fitness:.4f} | "
                   f"gen_best={gen_best.fitness:.4f} | "
                   f"mean={gen_log['mean']:.4f} | "
+                  f"cache={cache_size()} | "
                   f"time={gen_log['time']:.1f}s")
 
     total_time = time.time() - t_start
