@@ -51,7 +51,7 @@ def parse_args():
     parser.add_argument("--tournament_size",  type=int,   default=8)
     parser.add_argument("--min_depth",        type=int,   default=2)
     parser.add_argument("--max_depth",        type=int,   default=5)
-    parser.add_argument("--delta",            type=float, default=0.3,
+    parser.add_argument("--delta",            type=float, default=1.0,
                         help="PSA构建的Top-δ比例")
 
     # 输出

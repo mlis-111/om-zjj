@@ -62,7 +62,7 @@ def _get_label_from_uri(uri: str,
 def build_psa(data: OMData,
               src_entities: List[dict],
               tgt_entities: List[dict],
-              delta: float = 0.3) -> Set[Tuple[str, str]]:
+              delta: float = 1.0) -> Set[Tuple[str, str]]:
     """
     构建部分标准对齐（PSA）。
 
@@ -148,7 +148,7 @@ def build_psa(data: OMData,
 def build_psa_from_files(data: OMData,
                           src_json_path: str = "data/parsed/mouse.json",
                           tgt_json_path: str = "data/parsed/human.json",
-                          delta: float = 0.3) -> Set[Tuple[str, str]]:
+                          delta: float = 1.0) -> Set[Tuple[str, str]]:
     """
     从文件加载实体列表并构建PSA（便捷接口）。
     """
