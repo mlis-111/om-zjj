@@ -1,2 +1,391 @@
 nohup: ignoring input
 === 实验 1/5 开始 ===
+[FULL模式] population=50, generations=20
+
+=== 加载数据 ===
+实体数量: src=2744, tgt=3304
+  加载 biobert: shape=(2744, 3304), mean=0.7513, std=0.0710
+  加载 pubmedbert: shape=(2744, 3304), mean=0.8564, std=0.0369
+  加载 sapbert: shape=(2744, 3304), mean=0.3283, std=0.1421
+  加载 bioelectra: shape=(2744, 3304), mean=0.5850, std=0.1729
+  加载 scibert: shape=(2744, 3304), mean=0.6846, std=0.0930
+  加载 clinicalbert: shape=(2744, 3304), mean=0.7798, std=0.0665
+  加载 biogpt: shape=(2744, 3304), mean=0.2601, std=0.2014
+  加载 biogpt_large: shape=(2744, 3304), mean=0.0967, std=0.2604
+  加载 biomistral: shape=(2744, 3304), mean=0.3485, std=0.1496
+  加载 biomedlm: shape=(2744, 3304), mean=0.3173, std=0.1953
+  加载 pmcllama: shape=(2744, 3304), mean=0.1488, std=0.1666
+  加载 distilbert: shape=(2744, 3304), mean=0.9229, std=0.0291
+  加载 tinybert: shape=(2744, 3304), mean=0.9307, std=0.0373
+  加载 umlsbert: shape=(2744, 3304), mean=0.5280, std=0.0792
+  加载 biolinkbert: shape=(2744, 3304), mean=0.7563, std=0.1408
+  加载 biomedbert: shape=(2744, 3304), mean=0.8597, std=0.0423
+  加载 pubmedbert_emb: shape=(2744, 3304), mean=0.3016, std=0.1232
+  加载 e5base: shape=(2744, 3304), mean=0.7853, std=0.0501
+共加载 18 个相似度矩阵
+加载层次关系...
+  src: 2744实体, 2856条is-a, 1637条part-of
+  tgt: 3304实体, 3761条is-a, 1662条part-of
+加载标准对齐...
+  标准对齐数量: 1516
+
+=== 构建PSA ===
+PSA构建完成: 207 个锚点对 (delta=1.0)
+
+=== 开始GP进化 ===
+
+==================================================
+GP进化开始
+种群大小=50, 最大代数=20
+模型数=18, 过滤方法数=12
+PSA大小=207
+==================================================
+
+Gen   1/20 | best=0.1737 | gen_best=0.1737 | mean=0.0318 | cache=93 | time=168.7s
+Gen   2/20 | best=0.2510 | gen_best=0.2510 | mean=0.0383 | cache=135 | time=154.6s
+Gen   3/20 | best=0.2510 | gen_best=0.2510 | mean=0.0427 | cache=175 | time=162.0s
+Gen   4/20 | best=0.2704 | gen_best=0.2704 | mean=0.0477 | cache=219 | time=142.0s
+Gen   5/20 | best=0.3058 | gen_best=0.3058 | mean=0.0818 | cache=264 | time=124.2s
+Gen   6/20 | best=0.3058 | gen_best=0.3058 | mean=0.1274 | cache=302 | time=58.5s
+Gen   7/20 | best=0.3058 | gen_best=0.3058 | mean=0.1176 | cache=343 | time=60.8s
+Gen   8/20 | best=0.3058 | gen_best=0.3058 | mean=0.1257 | cache=383 | time=48.2s
+Gen   9/20 | best=0.3083 | gen_best=0.3083 | mean=0.1393 | cache=423 | time=56.2s
+Gen  10/20 | best=0.3421 | gen_best=0.3421 | mean=0.1470 | cache=463 | time=62.4s
+Gen  11/20 | best=0.3421 | gen_best=0.3421 | mean=0.1551 | cache=506 | time=81.0s
+Gen  12/20 | best=0.3421 | gen_best=0.3421 | mean=0.1927 | cache=541 | time=63.4s
+Gen  13/20 | best=0.3494 | gen_best=0.3494 | mean=0.2075 | cache=580 | time=56.0s
+Gen  14/20 | best=0.3873 | gen_best=0.3873 | mean=0.2059 | cache=618 | time=86.6s
+Gen  15/20 | best=0.3873 | gen_best=0.3873 | mean=0.2385 | cache=652 | time=57.6s
+Gen  16/20 | best=0.3873 | gen_best=0.3873 | mean=0.2567 | cache=683 | time=59.2s
+Gen  17/20 | best=0.3873 | gen_best=0.3873 | mean=0.2815 | cache=710 | time=60.8s
+Gen  18/20 | best=0.3873 | gen_best=0.3873 | mean=0.2798 | cache=737 | time=71.4s
+Gen  19/20 | best=0.3873 | gen_best=0.3873 | mean=0.2772 | cache=757 | time=61.2s
+Gen  20/20 | best=0.3873 | gen_best=0.3873 | mean=0.2819 | cache=784 | time=79.5s
+
+进化完成，总耗时: 1959.7s
+最优个体: Individual(fitness=0.3873, c_nodes=3, f_nodes=3, models=['sapbert', 'distilbert'])
+
+最终评估结果（完整标准对齐）:
+  Precision: 0.6383
+  Recall:    0.5495
+  F1:        0.5906
+
+=== 最终评估 ===
+Precision: 0.6383
+Recall:    0.5495
+F1:        0.5906
+
+结果已保存: results/cache_run2-1/results.json
+=== 实验 1/5 完成 ===
+=== 实验 2/5 开始 ===
+[FULL模式] population=50, generations=20
+
+=== 加载数据 ===
+实体数量: src=2744, tgt=3304
+  加载 biobert: shape=(2744, 3304), mean=0.7513, std=0.0710
+  加载 pubmedbert: shape=(2744, 3304), mean=0.8564, std=0.0369
+  加载 sapbert: shape=(2744, 3304), mean=0.3283, std=0.1421
+  加载 bioelectra: shape=(2744, 3304), mean=0.5850, std=0.1729
+  加载 scibert: shape=(2744, 3304), mean=0.6846, std=0.0930
+  加载 clinicalbert: shape=(2744, 3304), mean=0.7798, std=0.0665
+  加载 biogpt: shape=(2744, 3304), mean=0.2601, std=0.2014
+  加载 biogpt_large: shape=(2744, 3304), mean=0.0967, std=0.2604
+  加载 biomistral: shape=(2744, 3304), mean=0.3485, std=0.1496
+  加载 biomedlm: shape=(2744, 3304), mean=0.3173, std=0.1953
+  加载 pmcllama: shape=(2744, 3304), mean=0.1488, std=0.1666
+  加载 distilbert: shape=(2744, 3304), mean=0.9229, std=0.0291
+  加载 tinybert: shape=(2744, 3304), mean=0.9307, std=0.0373
+  加载 umlsbert: shape=(2744, 3304), mean=0.5280, std=0.0792
+  加载 biolinkbert: shape=(2744, 3304), mean=0.7563, std=0.1408
+  加载 biomedbert: shape=(2744, 3304), mean=0.8597, std=0.0423
+  加载 pubmedbert_emb: shape=(2744, 3304), mean=0.3016, std=0.1232
+  加载 e5base: shape=(2744, 3304), mean=0.7853, std=0.0501
+共加载 18 个相似度矩阵
+加载层次关系...
+  src: 2744实体, 2856条is-a, 1637条part-of
+  tgt: 3304实体, 3761条is-a, 1662条part-of
+加载标准对齐...
+  标准对齐数量: 1516
+
+=== 构建PSA ===
+PSA构建完成: 207 个锚点对 (delta=1.0)
+
+=== 开始GP进化 ===
+
+==================================================
+GP进化开始
+种群大小=50, 最大代数=20
+模型数=18, 过滤方法数=12
+PSA大小=207
+==================================================
+
+Gen   1/20 | best=0.2649 | gen_best=0.2649 | mean=0.0788 | cache=95 | time=193.7s
+Gen   2/20 | best=0.2994 | gen_best=0.2994 | mean=0.1078 | cache=139 | time=197.8s
+Gen   3/20 | best=0.3046 | gen_best=0.3046 | mean=0.1072 | cache=183 | time=159.7s
+Gen   4/20 | best=0.3250 | gen_best=0.3250 | mean=0.1018 | cache=227 | time=133.9s
+Gen   5/20 | best=0.3250 | gen_best=0.3250 | mean=0.1004 | cache=270 | time=127.6s
+Gen   6/20 | best=0.3250 | gen_best=0.3250 | mean=0.1202 | cache=312 | time=122.5s
+Gen   7/20 | best=0.3250 | gen_best=0.3250 | mean=0.0874 | cache=355 | time=95.0s
+Gen   8/20 | best=0.3250 | gen_best=0.3250 | mean=0.0833 | cache=400 | time=98.0s
+Gen   9/20 | best=0.3250 | gen_best=0.3250 | mean=0.0810 | cache=443 | time=90.5s
+Gen  10/20 | best=0.3537 | gen_best=0.3537 | mean=0.1244 | cache=480 | time=75.2s
+Gen  11/20 | best=0.3537 | gen_best=0.3537 | mean=0.1099 | cache=522 | time=87.0s
+Gen  12/20 | best=0.3537 | gen_best=0.3537 | mean=0.1442 | cache=556 | time=64.4s
+Gen  13/20 | best=0.3537 | gen_best=0.3537 | mean=0.1499 | cache=593 | time=81.6s
+Gen  14/20 | best=0.3755 | gen_best=0.3755 | mean=0.1832 | cache=628 | time=77.6s
+Gen  15/20 | best=0.3755 | gen_best=0.3755 | mean=0.2075 | cache=666 | time=88.5s
+Gen  16/20 | best=0.3767 | gen_best=0.3767 | mean=0.2336 | cache=702 | time=63.4s
+Gen  17/20 | best=0.3796 | gen_best=0.3796 | mean=0.2447 | cache=734 | time=50.1s
+Gen  18/20 | best=0.3916 | gen_best=0.3916 | mean=0.2496 | cache=766 | time=53.3s
+Gen  19/20 | best=0.3916 | gen_best=0.3916 | mean=0.2556 | cache=795 | time=56.2s
+Gen  20/20 | best=0.3916 | gen_best=0.3916 | mean=0.2509 | cache=827 | time=58.9s
+
+进化完成，总耗时: 2229.7s
+最优个体: Individual(fitness=0.3916, c_nodes=3, f_nodes=3, models=['tinybert', 'sapbert'])
+
+最终评估结果（完整标准对齐）:
+  Precision: 0.6456
+  Recall:    0.6741
+  F1:        0.6596
+
+=== 最终评估 ===
+Precision: 0.6456
+Recall:    0.6741
+F1:        0.6596
+
+结果已保存: results/cache_run2-2/results.json
+=== 实验 2/5 完成 ===
+=== 实验 3/5 开始 ===
+[FULL模式] population=50, generations=20
+
+=== 加载数据 ===
+实体数量: src=2744, tgt=3304
+  加载 biobert: shape=(2744, 3304), mean=0.7513, std=0.0710
+  加载 pubmedbert: shape=(2744, 3304), mean=0.8564, std=0.0369
+  加载 sapbert: shape=(2744, 3304), mean=0.3283, std=0.1421
+  加载 bioelectra: shape=(2744, 3304), mean=0.5850, std=0.1729
+  加载 scibert: shape=(2744, 3304), mean=0.6846, std=0.0930
+  加载 clinicalbert: shape=(2744, 3304), mean=0.7798, std=0.0665
+  加载 biogpt: shape=(2744, 3304), mean=0.2601, std=0.2014
+  加载 biogpt_large: shape=(2744, 3304), mean=0.0967, std=0.2604
+  加载 biomistral: shape=(2744, 3304), mean=0.3485, std=0.1496
+  加载 biomedlm: shape=(2744, 3304), mean=0.3173, std=0.1953
+  加载 pmcllama: shape=(2744, 3304), mean=0.1488, std=0.1666
+  加载 distilbert: shape=(2744, 3304), mean=0.9229, std=0.0291
+  加载 tinybert: shape=(2744, 3304), mean=0.9307, std=0.0373
+  加载 umlsbert: shape=(2744, 3304), mean=0.5280, std=0.0792
+  加载 biolinkbert: shape=(2744, 3304), mean=0.7563, std=0.1408
+  加载 biomedbert: shape=(2744, 3304), mean=0.8597, std=0.0423
+  加载 pubmedbert_emb: shape=(2744, 3304), mean=0.3016, std=0.1232
+  加载 e5base: shape=(2744, 3304), mean=0.7853, std=0.0501
+共加载 18 个相似度矩阵
+加载层次关系...
+  src: 2744实体, 2856条is-a, 1637条part-of
+  tgt: 3304实体, 3761条is-a, 1662条part-of
+加载标准对齐...
+  标准对齐数量: 1516
+
+=== 构建PSA ===
+PSA构建完成: 207 个锚点对 (delta=1.0)
+
+=== 开始GP进化 ===
+
+==================================================
+GP进化开始
+种群大小=50, 最大代数=20
+模型数=18, 过滤方法数=12
+PSA大小=207
+==================================================
+
+Gen   1/20 | best=0.3127 | gen_best=0.3127 | mean=0.0552 | cache=95 | time=161.4s
+Gen   2/20 | best=0.3127 | gen_best=0.3127 | mean=0.0746 | cache=140 | time=132.9s
+Gen   3/20 | best=0.3127 | gen_best=0.3127 | mean=0.0796 | cache=184 | time=135.8s
+Gen   4/20 | best=0.3203 | gen_best=0.3203 | mean=0.0959 | cache=227 | time=115.8s
+Gen   5/20 | best=0.3203 | gen_best=0.3203 | mean=0.1140 | cache=269 | time=113.4s
+Gen   6/20 | best=0.3203 | gen_best=0.3203 | mean=0.1294 | cache=310 | time=105.9s
+Gen   7/20 | best=0.3203 | gen_best=0.3203 | mean=0.1457 | cache=352 | time=115.0s
+Gen   8/20 | best=0.3203 | gen_best=0.3203 | mean=0.1114 | cache=392 | time=133.7s
+Gen   9/20 | best=0.3203 | gen_best=0.3203 | mean=0.1288 | cache=435 | time=126.2s
+Gen  10/20 | best=0.3203 | gen_best=0.3203 | mean=0.1433 | cache=477 | time=115.1s
+Gen  11/20 | best=0.3209 | gen_best=0.3209 | mean=0.1368 | cache=517 | time=105.5s
+Gen  12/20 | best=0.3209 | gen_best=0.3209 | mean=0.1596 | cache=554 | time=95.2s
+Gen  13/20 | best=0.3209 | gen_best=0.3209 | mean=0.1566 | cache=591 | time=81.8s
+Gen  14/20 | best=0.3209 | gen_best=0.3209 | mean=0.1666 | cache=631 | time=125.6s
+Gen  15/20 | best=0.3283 | gen_best=0.3283 | mean=0.1668 | cache=670 | time=121.5s
+Gen  16/20 | best=0.3380 | gen_best=0.3380 | mean=0.1684 | cache=707 | time=108.0s
+Gen  17/20 | best=0.3380 | gen_best=0.3380 | mean=0.1874 | cache=740 | time=76.3s
+Gen  18/20 | best=0.3380 | gen_best=0.3380 | mean=0.1696 | cache=781 | time=99.1s
+Gen  19/20 | best=0.3487 | gen_best=0.3487 | mean=0.1739 | cache=815 | time=80.7s
+Gen  20/20 | best=0.3487 | gen_best=0.3487 | mean=0.1719 | cache=851 | time=94.2s
+
+进化完成，总耗时: 2486.5s
+最优个体: Individual(fitness=0.3487, c_nodes=5, f_nodes=3, models=['clinicalbert', 'distilbert', 'umlsbert'])
+
+最终评估结果（完整标准对齐）:
+  Precision: 0.5125
+  Recall:    0.4195
+  F1:        0.4614
+
+=== 最终评估 ===
+Precision: 0.5125
+Recall:    0.4195
+F1:        0.4614
+
+结果已保存: results/cache_run2-3/results.json
+=== 实验 3/5 完成 ===
+=== 实验 4/5 开始 ===
+[FULL模式] population=50, generations=20
+
+=== 加载数据 ===
+实体数量: src=2744, tgt=3304
+  加载 biobert: shape=(2744, 3304), mean=0.7513, std=0.0710
+  加载 pubmedbert: shape=(2744, 3304), mean=0.8564, std=0.0369
+  加载 sapbert: shape=(2744, 3304), mean=0.3283, std=0.1421
+  加载 bioelectra: shape=(2744, 3304), mean=0.5850, std=0.1729
+  加载 scibert: shape=(2744, 3304), mean=0.6846, std=0.0930
+  加载 clinicalbert: shape=(2744, 3304), mean=0.7798, std=0.0665
+  加载 biogpt: shape=(2744, 3304), mean=0.2601, std=0.2014
+  加载 biogpt_large: shape=(2744, 3304), mean=0.0967, std=0.2604
+  加载 biomistral: shape=(2744, 3304), mean=0.3485, std=0.1496
+  加载 biomedlm: shape=(2744, 3304), mean=0.3173, std=0.1953
+  加载 pmcllama: shape=(2744, 3304), mean=0.1488, std=0.1666
+  加载 distilbert: shape=(2744, 3304), mean=0.9229, std=0.0291
+  加载 tinybert: shape=(2744, 3304), mean=0.9307, std=0.0373
+  加载 umlsbert: shape=(2744, 3304), mean=0.5280, std=0.0792
+  加载 biolinkbert: shape=(2744, 3304), mean=0.7563, std=0.1408
+  加载 biomedbert: shape=(2744, 3304), mean=0.8597, std=0.0423
+  加载 pubmedbert_emb: shape=(2744, 3304), mean=0.3016, std=0.1232
+  加载 e5base: shape=(2744, 3304), mean=0.7853, std=0.0501
+共加载 18 个相似度矩阵
+加载层次关系...
+  src: 2744实体, 2856条is-a, 1637条part-of
+  tgt: 3304实体, 3761条is-a, 1662条part-of
+加载标准对齐...
+  标准对齐数量: 1516
+
+=== 构建PSA ===
+PSA构建完成: 207 个锚点对 (delta=1.0)
+
+=== 开始GP进化 ===
+
+==================================================
+GP进化开始
+种群大小=50, 最大代数=20
+模型数=18, 过滤方法数=12
+PSA大小=207
+==================================================
+
+Gen   1/20 | best=0.3031 | gen_best=0.3031 | mean=0.0486 | cache=94 | time=125.4s
+Gen   2/20 | best=0.3031 | gen_best=0.3031 | mean=0.0722 | cache=138 | time=108.3s
+Gen   3/20 | best=0.3031 | gen_best=0.3031 | mean=0.0886 | cache=182 | time=130.6s
+Gen   4/20 | best=0.3031 | gen_best=0.3031 | mean=0.1050 | cache=223 | time=100.5s
+Gen   5/20 | best=0.3031 | gen_best=0.3031 | mean=0.1275 | cache=264 | time=109.8s
+Gen   6/20 | best=0.3038 | gen_best=0.3038 | mean=0.1265 | cache=306 | time=78.7s
+Gen   7/20 | best=0.3093 | gen_best=0.3093 | mean=0.1511 | cache=341 | time=79.8s
+Gen   8/20 | best=0.3384 | gen_best=0.3384 | mean=0.1676 | cache=380 | time=100.0s
+Gen   9/20 | best=0.3384 | gen_best=0.3384 | mean=0.1873 | cache=413 | time=74.4s
+Gen  10/20 | best=0.3384 | gen_best=0.3384 | mean=0.2025 | cache=447 | time=97.0s
+Gen  11/20 | best=0.3497 | gen_best=0.3497 | mean=0.1879 | cache=491 | time=105.5s
+Gen  12/20 | best=0.3497 | gen_best=0.3497 | mean=0.1814 | cache=525 | time=75.6s
+Gen  13/20 | best=0.3546 | gen_best=0.3546 | mean=0.1770 | cache=564 | time=81.6s
+Gen  14/20 | best=0.3546 | gen_best=0.3546 | mean=0.1740 | cache=606 | time=79.3s
+Gen  15/20 | best=0.3546 | gen_best=0.3546 | mean=0.1654 | cache=647 | time=81.1s
+Gen  16/20 | best=0.3546 | gen_best=0.3546 | mean=0.1787 | cache=687 | time=73.7s
+Gen  17/20 | best=0.3601 | gen_best=0.3601 | mean=0.2168 | cache=716 | time=43.0s
+Gen  18/20 | best=0.3732 | gen_best=0.3732 | mean=0.2059 | cache=754 | time=53.9s
+Gen  19/20 | best=0.3732 | gen_best=0.3732 | mean=0.1991 | cache=797 | time=67.8s
+Gen  20/20 | best=0.3732 | gen_best=0.3732 | mean=0.1987 | cache=840 | time=87.2s
+
+进化完成，总耗时: 1987.5s
+最优个体: Individual(fitness=0.3732, c_nodes=5, f_nodes=3, models=['sapbert', 'distilbert', 'sapbert'])
+
+最终评估结果（完整标准对齐）:
+  Precision: 0.5515
+  Recall:    0.5547
+  F1:        0.5531
+
+=== 最终评估 ===
+Precision: 0.5515
+Recall:    0.5547
+F1:        0.5531
+
+结果已保存: results/cache_run2-4/results.json
+=== 实验 4/5 完成 ===
+=== 实验 5/5 开始 ===
+[FULL模式] population=50, generations=20
+
+=== 加载数据 ===
+实体数量: src=2744, tgt=3304
+  加载 biobert: shape=(2744, 3304), mean=0.7513, std=0.0710
+  加载 pubmedbert: shape=(2744, 3304), mean=0.8564, std=0.0369
+  加载 sapbert: shape=(2744, 3304), mean=0.3283, std=0.1421
+  加载 bioelectra: shape=(2744, 3304), mean=0.5850, std=0.1729
+  加载 scibert: shape=(2744, 3304), mean=0.6846, std=0.0930
+  加载 clinicalbert: shape=(2744, 3304), mean=0.7798, std=0.0665
+  加载 biogpt: shape=(2744, 3304), mean=0.2601, std=0.2014
+  加载 biogpt_large: shape=(2744, 3304), mean=0.0967, std=0.2604
+  加载 biomistral: shape=(2744, 3304), mean=0.3485, std=0.1496
+  加载 biomedlm: shape=(2744, 3304), mean=0.3173, std=0.1953
+  加载 pmcllama: shape=(2744, 3304), mean=0.1488, std=0.1666
+  加载 distilbert: shape=(2744, 3304), mean=0.9229, std=0.0291
+  加载 tinybert: shape=(2744, 3304), mean=0.9307, std=0.0373
+  加载 umlsbert: shape=(2744, 3304), mean=0.5280, std=0.0792
+  加载 biolinkbert: shape=(2744, 3304), mean=0.7563, std=0.1408
+  加载 biomedbert: shape=(2744, 3304), mean=0.8597, std=0.0423
+  加载 pubmedbert_emb: shape=(2744, 3304), mean=0.3016, std=0.1232
+  加载 e5base: shape=(2744, 3304), mean=0.7853, std=0.0501
+共加载 18 个相似度矩阵
+加载层次关系...
+  src: 2744实体, 2856条is-a, 1637条part-of
+  tgt: 3304实体, 3761条is-a, 1662条part-of
+加载标准对齐...
+  标准对齐数量: 1516
+
+=== 构建PSA ===
+PSA构建完成: 207 个锚点对 (delta=1.0)
+
+=== 开始GP进化 ===
+
+==================================================
+GP进化开始
+种群大小=50, 最大代数=20
+模型数=18, 过滤方法数=12
+PSA大小=207
+==================================================
+
+Gen   1/20 | best=0.2702 | gen_best=0.2702 | mean=0.0597 | cache=94 | time=177.7s
+Gen   2/20 | best=0.2702 | gen_best=0.2702 | mean=0.0564 | cache=136 | time=131.8s
+Gen   3/20 | best=0.2944 | gen_best=0.2944 | mean=0.0864 | cache=175 | time=92.5s
+Gen   4/20 | best=0.2944 | gen_best=0.2944 | mean=0.1046 | cache=217 | time=62.1s
+Gen   5/20 | best=0.2944 | gen_best=0.2944 | mean=0.1279 | cache=256 | time=53.7s
+Gen   6/20 | best=0.3286 | gen_best=0.3286 | mean=0.1789 | cache=290 | time=29.9s
+Gen   7/20 | best=0.3286 | gen_best=0.3286 | mean=0.2166 | cache=310 | time=22.9s
+Gen   8/20 | best=0.3286 | gen_best=0.3286 | mean=0.2642 | cache=318 | time=7.7s
+Gen   9/20 | best=0.3286 | gen_best=0.3286 | mean=0.2363 | cache=333 | time=12.6s
+Gen  10/20 | best=0.3286 | gen_best=0.3286 | mean=0.2518 | cache=350 | time=19.9s
+Gen  11/20 | best=0.3286 | gen_best=0.3286 | mean=0.2706 | cache=361 | time=8.4s
+Gen  12/20 | best=0.3286 | gen_best=0.3286 | mean=0.2484 | cache=373 | time=13.0s
+Gen  13/20 | best=0.3286 | gen_best=0.3286 | mean=0.2788 | cache=383 | time=5.6s
+Gen  14/20 | best=0.3295 | gen_best=0.3295 | mean=0.2871 | cache=390 | time=5.4s
+Gen  15/20 | best=0.3295 | gen_best=0.3295 | mean=0.2647 | cache=398 | time=4.7s
+Gen  16/20 | best=0.3295 | gen_best=0.3295 | mean=0.2784 | cache=407 | time=6.4s
+Gen  17/20 | best=0.3295 | gen_best=0.3295 | mean=0.2687 | cache=416 | time=11.4s
+Gen  18/20 | best=0.3341 | gen_best=0.3341 | mean=0.2722 | cache=426 | time=8.1s
+Gen  19/20 | best=0.3341 | gen_best=0.3341 | mean=0.2811 | cache=436 | time=15.1s
+Gen  20/20 | best=0.3341 | gen_best=0.3341 | mean=0.2797 | cache=450 | time=16.5s
+
+进化完成，总耗时: 944.4s
+最优个体: Individual(fitness=0.3341, c_nodes=3, f_nodes=1, models=['sapbert', 'biomedbert'])
+
+最终评估结果（完整标准对齐）:
+  Precision: 0.4195
+  Recall:    0.7592
+  F1:        0.5404
+
+=== 最终评估 ===
+Precision: 0.4195
+Recall:    0.7592
+F1:        0.5404
+
+结果已保存: results/cache_run2-5/results.json
+=== 实验 5/5 完成 ===

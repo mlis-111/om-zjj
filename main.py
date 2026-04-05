@@ -3,18 +3,14 @@ main.py
 GP本体匹配系统入口。
 
 用法:
-  # 调试模式（快速验证流程）
   python main.py --mode debug
-
-  # 正式运行
   python main.py --mode full
-
-  # 自定义参数
   python main.py --population_size 50 --max_generations 20
 """
 import argparse
 import json
 import os
+import pickle
 import sys
 import time
 
@@ -41,8 +37,10 @@ def parse_args():
     parser.add_argument("--src_hierarchy", default="data/parsed/mouse_hierarchy.json")
     parser.add_argument("--tgt_hierarchy", default="data/parsed/human_hierarchy.json")
     parser.add_argument("--reference",     default="data/oaei/anatomy/reference.rdf")
+    parser.add_argument("--psa_cache_dir", default="data/parsed",
+                        help="PSA缓存文件目录")
 
-    # GP参数（可覆盖mode的默认值）
+    # GP参数
     parser.add_argument("--population_size",  type=int,   default=None)
     parser.add_argument("--max_generations",  type=int,   default=None)
     parser.add_argument("--crossover_rate",   type=float, default=0.8)
@@ -53,20 +51,50 @@ def parse_args():
     parser.add_argument("--max_depth",        type=int,   default=5)
     parser.add_argument("--delta",            type=float, default=1.0,
                         help="PSA构建的Top-δ比例")
+    parser.add_argument("--rebuild_psa",      action="store_true",
+                        help="强制重新构建PSA（忽略缓存）")
 
     # 输出
-    parser.add_argument("--output_dir", default="results",
-                        help="结果输出目录")
-    parser.add_argument("--run_id",     default=None,
-                        help="实验ID，默认使用时间戳")
+    parser.add_argument("--output_dir", default="results")
+    parser.add_argument("--run_id",     default=None)
 
     return parser.parse_args()
+
+
+def load_psa(data, args):
+    """
+    加载PSA，优先从缓存读取。
+    缓存路径：data/parsed/psa_delta{delta}.pkl
+    使用 --rebuild_psa 参数可强制重新构建。
+    """
+    cache_path = os.path.join(
+        args.psa_cache_dir, f"psa_delta{args.delta}.pkl"
+    )
+
+    if not args.rebuild_psa and os.path.exists(cache_path):
+        with open(cache_path, "rb") as f:
+            psa = pickle.load(f)
+        print(f"PSA从缓存加载: {len(psa)} 个锚点对 (delta={args.delta})")
+        return psa
+
+    # 缓存不存在或强制重建
+    psa = build_psa_from_files(
+        data,
+        src_json_path=args.src_entities,
+        tgt_json_path=args.tgt_entities,
+        delta=args.delta,
+    )
+
+    os.makedirs(args.psa_cache_dir, exist_ok=True)
+    with open(cache_path, "wb") as f:
+        pickle.dump(psa, f)
+    print(f"PSA已缓存: {cache_path}")
+    return psa
 
 
 def main():
     args = parse_args()
 
-    # 根据mode设置默认参数
     if args.mode == "debug":
         pop_size = args.population_size or 10
         max_gen  = args.max_generations or 5
@@ -76,8 +104,7 @@ def main():
         max_gen  = args.max_generations or 20
         print("[FULL模式] population=50, generations=20")
 
-    # 输出目录
-    run_id = args.run_id or time.strftime("%Y%m%d_%H%M%S")
+    run_id     = args.run_id or time.strftime("%Y%m%d_%H%M%S")
     output_dir = os.path.join(args.output_dir, run_id)
     os.makedirs(output_dir, exist_ok=True)
 
@@ -92,14 +119,9 @@ def main():
         reference_path=args.reference,
     )
 
-    # ---- 构建PSA ----
-    print("\n=== 构建PSA ===")
-    psa = build_psa_from_files(
-        data,
-        src_json_path=args.src_entities,
-        tgt_json_path=args.tgt_entities,
-        delta=args.delta,
-    )
+    # ---- 加载PSA（带缓存）----
+    print("\n=== 构建/加载PSA ===")
+    psa = load_psa(data, args)
 
     # ---- 运行GP ----
     print("\n=== 开始GP进化 ===")
