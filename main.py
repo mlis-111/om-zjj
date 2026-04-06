@@ -5,12 +5,10 @@ GP本体匹配系统入口。
 用法:
   python main.py --mode debug
   python main.py --mode full
-  python main.py --population_size 50 --max_generations 20
 """
 import argparse
 import json
 import os
-import pickle
 import sys
 import time
 
@@ -19,16 +17,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gp.gp_engine import run_gp
 from gp.operators import ALL_FILTER_METHODS
 from utils.data_loader import load_om_data, ALL_MODELS
-from utils.psa_builder import build_psa_from_files
+from utils.augmented_psa import build_augmented_psa_from_files
 from utils.evaluator import evaluate
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="GP本体匹配系统")
-
-    parser.add_argument("--mode", type=str, default="debug",
-                        choices=["debug", "full"],
-                        help="运行模式：debug(快速验证) / full(正式实验)")
+    parser.add_argument("--mode", default="debug", choices=["debug", "full"])
 
     # 数据路径
     parser.add_argument("--emb_dir",       default="embeddings/anatomy")
@@ -37,8 +32,6 @@ def parse_args():
     parser.add_argument("--src_hierarchy", default="data/parsed/mouse_hierarchy.json")
     parser.add_argument("--tgt_hierarchy", default="data/parsed/human_hierarchy.json")
     parser.add_argument("--reference",     default="data/oaei/anatomy/reference.rdf")
-    parser.add_argument("--psa_cache_dir", default="data/parsed",
-                        help="PSA缓存文件目录")
 
     # GP参数
     parser.add_argument("--population_size",  type=int,   default=None)
@@ -49,47 +42,24 @@ def parse_args():
     parser.add_argument("--tournament_size",  type=int,   default=8)
     parser.add_argument("--min_depth",        type=int,   default=2)
     parser.add_argument("--max_depth",        type=int,   default=5)
-    parser.add_argument("--delta",            type=float, default=1.0,
-                        help="PSA构建的Top-δ比例")
-    parser.add_argument("--rebuild_psa",      action="store_true",
-                        help="强制重新构建PSA（忽略缓存）")
 
-    # 输出
+    # 增强PSA参数
+    parser.add_argument("--psa_k",        type=float, default=0.7,
+                        help="第一阶段相似度阈值")
+    parser.add_argument("--psa_depth",    type=int,   default=3,
+                        help="第二阶段传播深度")
+    parser.add_argument("--psa_thresh1",  type=float, default=1.0,
+                        help="Layer1字符串相似度阈值")
+    parser.add_argument("--psa_thresh2",  type=float, default=0.8,
+                        help="Layer2字符串相似度阈值")
+    parser.add_argument("--psa_w1",       type=float, default=0.8,
+                        help="Layer1权重")
+    parser.add_argument("--psa_w2",       type=float, default=0.2,
+                        help="Layer2权重")
+
     parser.add_argument("--output_dir", default="results")
     parser.add_argument("--run_id",     default=None)
-
     return parser.parse_args()
-
-
-def load_psa(data, args):
-    """
-    加载PSA，优先从缓存读取。
-    缓存路径：data/parsed/psa_delta{delta}.pkl
-    使用 --rebuild_psa 参数可强制重新构建。
-    """
-    cache_path = os.path.join(
-        args.psa_cache_dir, f"psa_delta{args.delta}.pkl"
-    )
-
-    if not args.rebuild_psa and os.path.exists(cache_path):
-        with open(cache_path, "rb") as f:
-            psa = pickle.load(f)
-        print(f"PSA从缓存加载: {len(psa)} 个锚点对 (delta={args.delta})")
-        return psa
-
-    # 缓存不存在或强制重建
-    psa = build_psa_from_files(
-        data,
-        src_json_path=args.src_entities,
-        tgt_json_path=args.tgt_entities,
-        delta=args.delta,
-    )
-
-    os.makedirs(args.psa_cache_dir, exist_ok=True)
-    with open(cache_path, "wb") as f:
-        pickle.dump(psa, f)
-    print(f"PSA已缓存: {cache_path}")
-    return psa
 
 
 def main():
@@ -108,7 +78,7 @@ def main():
     output_dir = os.path.join(args.output_dir, run_id)
     os.makedirs(output_dir, exist_ok=True)
 
-    # ---- 加载数据 ----
+    # 加载数据
     print("\n=== 加载数据 ===")
     data = load_om_data(
         emb_dir=args.emb_dir,
@@ -119,11 +89,22 @@ def main():
         reference_path=args.reference,
     )
 
-    # ---- 加载PSA（带缓存）----
-    print("\n=== 构建/加载PSA ===")
-    psa = load_psa(data, args)
+    # 构建增强PSA
+    print("\n=== 构建增强PSA ===")
+    psa = build_augmented_psa_from_files(
+        data,
+        src_json_path=args.src_entities,
+        tgt_json_path=args.tgt_entities,
+        k=args.psa_k,
+        max_depth=args.psa_depth,
+        thresh1=args.psa_thresh1,
+        thresh2=args.psa_thresh2,
+        n_gram=2,
+        w1=args.psa_w1,
+        w2=args.psa_w2,
+    )
 
-    # ---- 运行GP ----
+    # 运行GP
     print("\n=== 开始GP进化 ===")
     best_individual, logs = run_gp(
         data=data,
@@ -141,20 +122,26 @@ def main():
         verbose=True,
     )
 
-    # ---- 最终评估 ----
+    # 最终评估
     print("\n=== 最终评估 ===")
-    best_alignment = best_individual.evaluate(data)
+    best_alignment    = best_individual.evaluate(data)
     precision, recall, f1 = evaluate(best_alignment, data)
     print(f"Precision: {precision:.4f}")
     print(f"Recall:    {recall:.4f}")
     print(f"F1:        {f1:.4f}")
 
-    # ---- 保存结果 ----
+    # 保存结果
     results = {
         "run_id":          run_id,
         "mode":            args.mode,
         "population_size": pop_size,
         "max_generations": max_gen,
+        "psa_config": {
+            "k": args.psa_k, "depth": args.psa_depth,
+            "thresh1": args.psa_thresh1, "thresh2": args.psa_thresh2,
+            "w1": args.psa_w1, "w2": args.psa_w2,
+            "layer1_size": len(psa.layer1), "layer2_size": len(psa.layer2),
+        },
         "final_precision": precision,
         "final_recall":    recall,
         "final_f1":        f1,
@@ -167,7 +154,6 @@ def main():
     with open(results_path, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
     print(f"\n结果已保存: {results_path}")
-
     return results
 
 

@@ -257,6 +257,7 @@ class Individual:
             llm_type_map=self.llm_type_map.copy(),
         )
         new_ind.fitness = self.fitness
+        new_ind._alignment_cache = self._alignment_cache  # 复用缓存，无需重新计算
         return new_ind
 
     def __repr__(self) -> str:

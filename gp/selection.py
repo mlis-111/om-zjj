@@ -4,29 +4,36 @@ gp/selection.py
 
 阶段说明：
   第一阶段（8→4）：按近似F1淘汰，保留高质量个体
-  第二阶段（4→2）：按动态权重综合得分（多样性+可靠性）选择
-                    余弦退火调整权重：早期偏多样性，后期偏可靠性
+  第二阶段（4→2）：余弦退火动态权重综合得分（多样性+可靠性）
+                    早期偏多样性（探索），后期偏可靠性（收敛）
   第三阶段（2→1）：按复杂度淘汰，保留结构更简洁的个体，相等则随机
 
 多样性（信息熵）：
   统计组合树中三类LLM（string/structure/semantic）的比例
   H = -sum(pi*ln(pi))，归一化到[0,1]（除以ln(3)）
 
-可靠性：
-  检测对齐中的逻辑冲突（一侧有层次关系但另一侧没有）
-  reliability = 1 - (冲突数 / 总比较次数)
+可靠性（层次一致性，O(k×L)算法）：
+  只检查"源侧有层次关系的对"：
+  对每个匹配对(c1,c2)，遍历c1的直接超类super_c1：
+    若super_c1也在匹配对里，检查super_c2是否是c2的超类
+    若不是 → 冲突
+  reliability = 1 - (冲突数 / 有层次关系的对数)
 
 复杂度：
   组合树节点数 + 过滤树节点数
 """
 import math
 import random
-from typing import List, Tuple, TYPE_CHECKING
+from typing import Dict, List, Set, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from gp.individual import Individual
     from utils.data_loader import OMData
 
+
+# ============================================================
+# 余弦退火动态权重
+# ============================================================
 
 def cosine_annealing_weights(gen: int, max_gen: int) -> Tuple[float, float]:
     """
@@ -42,6 +49,10 @@ def cosine_annealing_weights(gen: int, max_gen: int) -> Tuple[float, float]:
     w_rel = 1.0 - w_div
     return w_div, w_rel
 
+
+# ============================================================
+# 各阶段指标计算
+# ============================================================
 
 def compute_diversity(individual: "Individual") -> float:
     """
@@ -70,46 +81,66 @@ def compute_diversity(individual: "Individual") -> float:
 
 
 def compute_reliability(individual: "Individual",
-                        data: "OMData") -> float:
+                        data: "OMData",
+                        max_pairs: int = 500) -> float:
     """
-    计算个体对齐结果的可靠性。
+    计算个体对齐结果的可靠性（层次一致性）。
 
-    逻辑冲突定义：
-      对 c₁→c₂ 和 c₁'→c₂'，若 c₁与c₁'有层次关系 但 c₂与c₂'没有（或反之），
-      则为冲突。
+    算法：O(k×L)，只检查源侧有层次关系的对。
+
+    对每个匹配对(c1,c2)，遍历c1的所有直接超类super_c1：
+      - 若super_c1也在匹配对里（即super_c1→super_c2存在），
+        则检查目标侧：super_c2是否是c2的超类
+      - 若不是 → 冲突
+
+    分母只统计"有层次关系的对数"，语义更精准。
+
+    Args:
+        individual: GP个体（需已调用evaluate()）
+        data:       OMData（包含层次关系）
+        max_pairs:  对齐数量过多时随机采样上限
 
     Returns:
         reliability in [0, 1]
     """
-    alignment = individual.get_alignment()  # List of (src_idx, tgt_idx)
+    alignment = individual.get_alignment()
 
     if len(alignment) < 2:
-        return 1.0
+        return 0.0
 
-    # 采样限制：避免O(|A|²)在大对齐时爆炸，500对足够估计冲突率
-    import random as _random
-    if len(alignment) > 500:
-        alignment = _random.sample(alignment, 500)
-
-    total_comparisons = 0
-    conflict_count = 0
     src_hier = data.src_hierarchy
     tgt_hier = data.tgt_hierarchy
 
-    n = len(alignment)
-    for i in range(n):
-        for j in range(i + 1, n):
-            src_i, tgt_i = alignment[i]
-            src_j, tgt_j = alignment[j]
-            total_comparisons += 1
-            src_has_rel = src_hier.has_any_relation(src_i, src_j)
-            tgt_has_rel = tgt_hier.has_any_relation(tgt_i, tgt_j)
-            if src_has_rel != tgt_has_rel:
+    # src_to_tgt用完整对齐构建，确保超类查找不遗漏
+    src_to_tgt: Dict[int, int] = {c1: c2 for c1, c2 in alignment}
+
+    # 只对外层循环采样，减少计算量
+    sample = alignment if len(alignment) <= max_pairs else random.sample(alignment, max_pairs)
+
+    tgt_parents_set: Dict[int, Set[int]] = {
+        k: set(v) for k, v in tgt_hier.parents.items()
+    }
+
+    conflict_count = 0
+    checked: Set[Tuple[int, int]] = set()
+
+    for c1, c2 in sample:
+        for super_c1 in src_hier.parents.get(c1, []):
+            if super_c1 not in src_to_tgt:
+                continue
+            pair_key = (min(c1, super_c1), max(c1, super_c1))
+            if pair_key in checked:
+                continue
+            checked.add(pair_key)
+            super_c2 = src_to_tgt[super_c1]
+            if super_c2 not in tgt_parents_set.get(c2, set()):
                 conflict_count += 1
 
-    if total_comparisons == 0:
+    total = len(checked)
+    if total == 0:
         return 1.0
-    return 1.0 - (conflict_count / total_comparisons)
+
+    return 1.0 - (conflict_count / total)
 
 
 def compute_complexity(individual: "Individual") -> int:
@@ -120,6 +151,10 @@ def compute_complexity(individual: "Individual") -> int:
     return (individual.combination_tree.node_count() +
             individual.filter_tree.node_count())
 
+
+# ============================================================
+# 三阶段锦标赛
+# ============================================================
 
 def three_stage_tournament(population: List["Individual"],
                            gen: int,
@@ -133,7 +168,7 @@ def three_stage_tournament(population: List["Individual"],
         population:      当前种群
         gen:             当前代数（从0开始）
         max_gen:         最大代数
-        data:            OM数据（用于可靠性计算）
+        data:            OM数据
         tournament_size: 锦标赛大小，默认8
 
     Returns:
@@ -155,14 +190,18 @@ def three_stage_tournament(population: List["Individual"],
     if len(survivors_1) == 1:
         return survivors_1[0]
 
-    # ---- 第二阶段（4→2）：按多样性选择 ----
+    # ---- 第二阶段（4→2）：余弦退火动态权重（多样性+可靠性）----
+    w_div, w_rel = cosine_annealing_weights(gen, max_gen)
     random.shuffle(survivors_1)
     survivors_2 = []
     for i in range(0, len(survivors_1) - 1, 2):
         a, b = survivors_1[i], survivors_1[i + 1]
-        survivors_2.append(a if compute_diversity(a) >= compute_diversity(b) else b)
+        score_a = w_div * compute_diversity(a) + w_rel * compute_reliability(a, data)
+        score_b = w_div * compute_diversity(b) + w_rel * compute_reliability(b, data)
+        survivors_2.append(a if score_a >= score_b else b)
     if len(survivors_1) % 2 == 1:
         survivors_2.append(survivors_1[-1])
+
     if len(survivors_2) == 1:
         return survivors_2[0]
 
