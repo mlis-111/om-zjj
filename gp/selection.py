@@ -106,6 +106,7 @@ def compute_reliability(individual: "Individual",
     alignment = individual.get_alignment()
 
     if len(alignment) < 2:
+        # print("  对齐对数不足，可靠性设为0.0")
         return 0.0
 
     src_hier = data.src_hierarchy
@@ -138,8 +139,10 @@ def compute_reliability(individual: "Individual",
 
     total = len(checked)
     if total == 0:
+        # print("  无层次关系的对，可靠性设为1.0")
         return 1.0
 
+    # print(f"  检查了 {total} 个有层次关系的对，发现 {conflict_count} 个冲突, 可靠性 = {1.0 - (conflict_count / total):.4f}")
     return 1.0 - (conflict_count / total)
 
 

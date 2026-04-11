@@ -57,7 +57,15 @@ def extract_hierarchy(owl_path: str) -> dict:
         if not isinstance(s, URIRef) or not isinstance(o, URIRef):
             continue
         s_str, o_str = str(s), str(o)
+        # 过滤OWL系统类和非本体命名空间
         if s_str not in uri_to_idx or o_str not in uri_to_idx:
+            continue
+        skip_prefixes = (
+            "http://www.w3.org/",
+            "http://www.geneontology.org/",
+            "http://purl.obolibrary.org/obo/IAO",
+        )
+        if any(o_str.startswith(p) for p in skip_prefixes):
             continue
         s_idx = uri_to_idx[s_str]
         o_idx = uri_to_idx[o_str]

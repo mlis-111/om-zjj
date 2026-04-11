@@ -44,18 +44,12 @@ def parse_args():
     parser.add_argument("--max_depth",        type=int,   default=5)
 
     # 增强PSA参数
-    parser.add_argument("--psa_k",        type=float, default=0.7,
-                        help="第一阶段相似度阈值")
-    parser.add_argument("--psa_depth",    type=int,   default=3,
-                        help="第二阶段传播深度")
-    parser.add_argument("--psa_thresh1",  type=float, default=1.0,
-                        help="Layer1字符串相似度阈值")
-    parser.add_argument("--psa_thresh2",  type=float, default=0.8,
-                        help="Layer2字符串相似度阈值")
-    parser.add_argument("--psa_w1",       type=float, default=0.8,
-                        help="Layer1权重")
-    parser.add_argument("--psa_w2",       type=float, default=0.2,
-                        help="Layer2权重")
+    parser.add_argument("--psa_k",        type=float, default=0.7, help="第一阶段相似度阈值")
+    parser.add_argument("--psa_depth",    type=int,   default=3,   help="第二阶段传播深度")
+    parser.add_argument("--psa_thresh1",  type=float, default=1.0, help="Layer1字符串相似度阈值")
+    parser.add_argument("--psa_thresh2",  type=float, default=0.8, help="Layer2字符串相似度阈值")
+    parser.add_argument("--psa_w1",       type=float, default=0.7, help="Layer1权重")
+    parser.add_argument("--psa_w2",       type=float, default=0.3, help="Layer2权重")
 
     parser.add_argument("--output_dir", default="results")
     parser.add_argument("--run_id",     default=None)

@@ -1,5 +1,5 @@
-# 忽略 bio-Ml2024 数据集中的所有 owl 文件
-data/bio-Ml2024数据集/**/*.owl
+# 忽略 bio-ml-2024 数据集
+data/bio-ml-2024/*
 
 *.pyc
 *.pyo
