@@ -1,0 +1,14 @@
+nohup: ignoring input
+=== 实验 1/5 开始 ===
+bash: line 2: 866606 Killed                  python main.py --dataset omim-ordo --mode full --run_id aug_run_omim-ordo${i}
+=== 实验 1/5 完成 ===
+=== 实验 2/5 开始 ===
+bash: line 2: 989519 Killed                  python main.py --dataset omim-ordo --mode full --run_id aug_run_omim-ordo${i}
+=== 实验 2/5 完成 ===
+=== 实验 3/5 开始 ===
+bash: line 2: 1114984 Killed                  python main.py --dataset omim-ordo --mode full --run_id aug_run_omim-ordo${i}
+=== 实验 3/5 完成 ===
+=== 实验 4/5 开始 ===
+bash: line 2: 1188687 Killed                  python main.py --dataset omim-ordo --mode full --run_id aug_run_omim-ordo${i}
+=== 实验 4/5 完成 ===
+=== 实验 5/5 开始 ===

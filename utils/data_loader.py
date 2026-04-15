@@ -108,13 +108,31 @@ def load_hierarchy(json_path: str) -> HierarchyData:
     )
 
 
-def load_reference(rdf_path: str,
+def load_reference(ref_path: str,
                    src_uri_to_idx: Dict[str, int],
-                   tgt_uri_to_idx: Dict[str, int]) -> Set[Tuple[str, str]]:
+                   tgt_uri_to_idx: Dict[str, int],
+                   ref_format: str = None) -> Set[Tuple[str, str]]:
     """
-    从reference.rdf加载标准对齐，返回 Set of (src_uri, tgt_uri)。
-    使用正则解析，直接提取 entity1/entity2 的 rdf:resource 属性值。
+    加载标准对齐，返回 Set of (src_uri, tgt_uri)。
+    自动根据文件扩展名判断格式（也可通过 ref_format 显式指定）。
+
+    支持格式：
+      rdf  - OAEI Anatomy 的 reference.rdf
+      tsv  - Bio-ML 的 full.tsv（列：SrcEntity TgtEntity Score）
     """
+    if ref_format is None:
+        ref_format = "tsv" if ref_path.endswith(".tsv") else "rdf"
+
+    if ref_format == "tsv":
+        return _load_reference_tsv(ref_path, src_uri_to_idx, tgt_uri_to_idx)
+    else:
+        return _load_reference_rdf(ref_path, src_uri_to_idx, tgt_uri_to_idx)
+
+
+def _load_reference_rdf(rdf_path: str,
+                        src_uri_to_idx: Dict[str, int],
+                        tgt_uri_to_idx: Dict[str, int]) -> Set[Tuple[str, str]]:
+    """OAEI RDF格式解析（原有逻辑，完整保留）"""
     import re
     reference = set()
 
@@ -143,6 +161,28 @@ def load_reference(rdf_path: str,
     return reference
 
 
+def _load_reference_tsv(tsv_path: str,
+                        src_uri_to_idx: Dict[str, int],
+                        tgt_uri_to_idx: Dict[str, int]) -> Set[Tuple[str, str]]:
+    """Bio-ML TSV格式解析（列：SrcEntity TgtEntity Score，首行为header）"""
+    import csv
+    reference = set()
+
+    with open(tsv_path, encoding="utf-8") as f:
+        reader = csv.DictReader(f, delimiter="\t")
+        for row in reader:
+            src_uri = row.get("SrcEntity", "").strip()
+            tgt_uri = row.get("TgtEntity", "").strip()
+            if not src_uri or not tgt_uri:
+                continue
+            if src_uri in src_uri_to_idx and tgt_uri in tgt_uri_to_idx:
+                reference.add((src_uri, tgt_uri))
+            elif tgt_uri in src_uri_to_idx and src_uri in tgt_uri_to_idx:
+                reference.add((tgt_uri, src_uri))
+
+    return reference
+
+
 def load_om_data(
     emb_dir:        str = "embeddings/anatomy",
     src_entities:   str = "data/parsed/mouse.json",
@@ -150,6 +190,7 @@ def load_om_data(
     src_hierarchy:  str = "data/parsed/mouse_hierarchy.json",
     tgt_hierarchy:  str = "data/parsed/human_hierarchy.json",
     reference_path: str = "data/oaei/anatomy/reference.rdf",
+    ref_format:     str = None,
     models:         Optional[List[str]] = None,
 ) -> OMData:
     """
@@ -200,7 +241,7 @@ def load_om_data(
 
     # 4. 标准对齐
     print("加载标准对齐...")
-    reference = load_reference(reference_path, src_uri_to_idx, tgt_uri_to_idx)
+    reference = load_reference(reference_path, src_uri_to_idx, tgt_uri_to_idx, ref_format)
     print(f"  标准对齐数量: {len(reference)}")
 
     return OMData(

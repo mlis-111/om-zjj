@@ -1,5 +1,17 @@
-# 忽略 bio-ml-2024 数据集
-data/bio-ml-2024/*
-
+# Python 编译缓存
 *.pyc
 *.pyo
+__pycache__/
+utils/__pycache__/
+
+# 数据与模型文件（按需开启）
+embeddings/
+data/*
+
+# 运行结果
+# results/
+# logs/
+
+# 系统文件
+.DS_Store
+Thumbs.db

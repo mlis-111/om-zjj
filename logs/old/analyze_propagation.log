@@ -1,0 +1,266 @@
+nohup: ignoring input
+
+############################################################
+# omim-ordo
+############################################################
+
+数据集: omim-ordo
+实体数量: src=9648, tgt=9275
+  加载 biobert: shape=(9648, 9275), mean=0.8603, std=0.0360
+  加载 pubmedbert: shape=(9648, 9275), mean=0.8856, std=0.0308
+  加载 sapbert: shape=(9648, 9275), mean=0.3538, std=0.0870
+  加载 bioelectra: shape=(9648, 9275), mean=0.6922, std=0.1686
+  加载 scibert: shape=(9648, 9275), mean=0.7674, std=0.0558
+  加载 clinicalbert: shape=(9648, 9275), mean=0.8607, std=0.0466
+  加载 biogpt: shape=(9648, 9275), mean=0.3948, std=0.1398
+  加载 biogpt_large: shape=(9648, 9275), mean=0.3260, std=0.1579
+  加载 biomistral: shape=(9648, 9275), mean=0.3699, std=0.1264
+  加载 biomedlm: shape=(9648, 9275), mean=0.3717, std=0.1676
+  加载 pmcllama: shape=(9648, 9275), mean=0.2380, std=0.1136
+  加载 distilbert: shape=(9648, 9275), mean=0.9370, std=0.0324
+  加载 tinybert: shape=(9648, 9275), mean=0.9550, std=0.0219
+  加载 umlsbert: shape=(9648, 9275), mean=0.5810, std=0.0664
+  加载 biolinkbert: shape=(9648, 9275), mean=0.8139, std=0.1183
+  加载 biomedbert: shape=(9648, 9275), mean=0.9134, std=0.0224
+  加载 pubmedbert_emb: shape=(9648, 9275), mean=0.3129, std=0.0942
+  加载 e5base: shape=(9648, 9275), mean=0.7999, std=0.0419
+共加载 18 个相似度矩阵
+加载层次关系...
+  src: 9648实体, 4328条is-a, 0条part-of
+  tgt: 9275实体, 12164条is-a, 14878条part-of
+加载标准对齐...
+  标准对齐数量: 3721
+  第一阶段：1303 个高置信度锚点（k=0.7）
+  [大数据集] src=9648×tgt=9275，分析1启用采样(300对)
+
+=== 分析1：结构保留率（采样 300 对）===
+  采样对数: 300, 扩展候选总数: 11617531
+  命中: 2458,  全局 Precision=0.0002
+
+  类型                      候选数      命中数  Precision
+  ------------------------------------------------
+  isa×isa            11054814     1635     0.0001
+  isa×partof           562717      823     0.0015
+  partof×isa                0        0     0.0000
+  partof×partof             0        0     0.0000
+
+=== 分析2：按传播深度的 Precision 衰减 ===
+   src深度  tgt深度        候选数      命中数  Precision
+  ----------------------------------------------
+       0      0       1303      391     0.3001
+       0      1       4160       76     0.0183
+       0      2     425799      198     0.0005
+       0      3    3160373       20     0.0000
+       1      0       2980       41     0.0138
+       1      1      16131      196     0.0122
+       1      2    2639318      259     0.0001
+       1      3   10537565      414     0.0000
+       2      0       1005        1     0.0010
+       2      1       3133        7     0.0022
+       2      2     297608       76     0.0003
+       2      3    2329405       21     0.0000
+       3      0       3284        0     0.0000
+       3      1      15731        4     0.0003
+       3      2    2559856      149     0.0001
+       3      3   10178327      148     0.0000
+
+=== 分析3：锚点 vs 传播候选 Precision 对比 ===
+  锚点数量: 1303,  命中: 391,  Precision=0.3001
+  传播新增候选: 9923649,  命中: 523,  Precision=0.0001,  召回增益=0.1406
+  传播/锚点 Precision 比值: 0.0002  (无效，建议 depth=0)
+
+############################################################
+# ncit-doid
+############################################################
+
+数据集: ncit-doid
+实体数量: src=15762, tgt=8465
+  加载 biobert: shape=(15762, 8465), mean=0.8321, std=0.0375
+  加载 pubmedbert: shape=(15762, 8465), mean=0.8715, std=0.0347
+  加载 sapbert: shape=(15762, 8465), mean=0.2434, std=0.0917
+  加载 bioelectra: shape=(15762, 8465), mean=0.6146, std=0.2222
+  加载 scibert: shape=(15762, 8465), mean=0.7565, std=0.0617
+  加载 clinicalbert: shape=(15762, 8465), mean=0.8683, std=0.0506
+  加载 biogpt: shape=(15762, 8465), mean=0.3312, std=0.1342
+  加载 biogpt_large: shape=(15762, 8465), mean=0.1601, std=0.2249
+  加载 biomistral: shape=(15762, 8465), mean=0.4020, std=0.1385
+  加载 biomedlm: shape=(15762, 8465), mean=0.3417, std=0.1665
+  加载 pmcllama: shape=(15762, 8465), mean=0.2246, std=0.0925
+  加载 distilbert: shape=(15762, 8465), mean=0.9455, std=0.0277
+  加载 tinybert: shape=(15762, 8465), mean=0.9505, std=0.0272
+  加载 umlsbertanalyze_all_datasets.sh: line 5: 820587 Killed                  python analyze_propagation.py --dataset "$DS" --depth 3
+
+############################################################
+# snomed-ncit-neoplas
+############################################################
+analyze_all_datasets.sh: line 5: 832599 Killed                  python analyze_propagation.py --dataset "$DS" --depth 3
+
+############################################################
+# anatomy
+############################################################
+
+数据集: anatomy
+实体数量: src=2744, tgt=3304
+  加载 biobert: shape=(2744, 3304), mean=0.7513, std=0.0710
+  加载 pubmedbert: shape=(2744, 3304), mean=0.8564, std=0.0369
+  加载 sapbert: shape=(2744, 3304), mean=0.3283, std=0.1421
+  加载 bioelectra: shape=(2744, 3304), mean=0.5850, std=0.1729
+  加载 scibert: shape=(2744, 3304), mean=0.6846, std=0.0930
+  加载 clinicalbert: shape=(2744, 3304), mean=0.7798, std=0.0665
+  加载 biogpt: shape=(2744, 3304), mean=0.2601, std=0.2014
+  加载 biogpt_large: shape=(2744, 3304), mean=0.0967, std=0.2604
+  加载 biomistral: shape=(2744, 3304), mean=0.3485, std=0.1496
+  加载 biomedlm: shape=(2744, 3304), mean=0.3173, std=0.1953
+  加载 pmcllama: shape=(2744, 3304), mean=0.1488, std=0.1666
+  加载 distilbert: shape=(2744, 3304), mean=0.9229, std=0.0291
+  加载 tinybert: shape=(2744, 3304), mean=0.9307, std=0.0373
+  加载 umlsbert: shape=(2744, 3304), mean=0.5280, std=0.0792
+  加载 biolinkbert: shape=(2744, 3304), mean=0.7563, std=0.1408
+  加载 biomedbert: shape=(2744, 3304), mean=0.8597, std=0.0423
+  加载 pubmedbert_emb: shape=(2744, 3304), mean=0.3016, std=0.1232
+  加载 e5base: shape=(2744, 3304), mean=0.7853, std=0.0501
+共加载 18 个相似度矩阵
+加载层次关系...
+  src: 2744实体, 1807条is-a, 1637条part-of
+  tgt: 3304实体, 3761条is-a, 1662条part-of
+加载标准对齐...
+  标准对齐数量: 1516
+  第一阶段：4026 个高置信度锚点（k=0.7）
+
+=== 分析1：结构保留率（全量）===
+  采样对数: 1516, 扩展候选总数: 11215972
+  命中: 38406,  全局 Precision=0.0034
+
+  类型                      候选数      命中数  Precision
+  ------------------------------------------------
+  isa×isa             8516310    30146     0.0035
+  isa×partof           345597      670     0.0019
+  partof×isa          1762324     3736     0.0021
+  partof×partof        591741     3854     0.0065
+
+=== 分析2：按传播深度的 Precision 衰减 ===
+   src深度  tgt深度        候选数      命中数  Precision
+  ----------------------------------------------
+       0      0       4026       40     0.0099
+       0      1      analyze_all_datasets.sh: line 5: 841845 Killed                  python analyze_propagation.py --dataset "$DS" --depth 3
+
+############################################################
+# snomed-ncit-neoplas
+############################################################
+
+数据集: snomed-ncit-neoplas
+实体数量: src=22971, tgt=20247
+  加载 biobert: shape=(22971, 20247), mean=0.8138, std=0.0417
+  加载 pubmedbert: shape=(22971, 20247), mean=0.8785, std=0.0311
+  加载 sapbert: shape=(22971, 20247), mean=0.1825, std=0.1025
+  加载 bioelectra: shape=(22971, 20247), mean=0.5926, std=0.1437
+  加载 scibert: shape=(22971, 20247), mean=0.7403, std=0.0625
+  加载 clinicalbert: shape=(22971, 20247), mean=0.8385, std=0.0658
+  加载 biogpt: shape=(22971, 20247), mean=0.3571, std=0.1079
+  加载 biogpt_large: shape=(22971, 20247), mean=0.2272, std=0.1799
+  加载 biomistral: shape=(22971, 20247), mean=0.4379, std=0.1261
+  加载 biomedlm: shape=(22971, 20247), mean=0.4752, std=0.1217
+  加载 pmcllama: shape=(22971, 20247), mean=0.1060, std=0.0439
+  加载 distilbert: shape=(22971, 20247), mean=0.9267, std=0.0380
+  加载 tinybert: shape=(22971, 20247), mean=0.9494, std=0.0319
+  加载 umlsbert: shape=(22971, 20247), mean=0.5044, std=0.0775
+  加载 biolinkbert: shape=(22971, 20247), mean=0.8047, std=0.1157
+  加载 biomedbert: shape=(22971, 20247), mean=0.8995, std=0.0267
+  加载 pubmedbert_emb: shape=(22971, 20247), mean=0.3196, std=0.1009
+  加载 e5base: shape=(22971, 20247), mean=0.7873, std=0.0423
+共加载 18 个相似度矩阵
+加载层次关系...
+  src: 22971实体, 2693条is-a, 0条part-of
+  tgt: 20247实体, 9965条is-a, 0条part-of
+加载标准对齐...
+  标准对齐数量: 3804
+  第一阶段：0 个高置信度锚点（k=0.7）
+  [大数据集] src=22971×tgt=20247，分析1启用采样(300对)
+
+=== 分析1：结构保留率（采样 300 对）===
+  采样对数: 300, 扩展候选总数: 3812
+  命中: 1,  全局 Precision=0.0003
+
+  类型                      候选数      命中数  Precision
+  ------------------------------------------------
+  isa×isa                3812        1     0.0003
+  isa×partof                0        0     0.0000
+  partof×isa                0        0     0.0000
+  partof×partof             0        0     0.0000
+
+=== 分析2：按传播深度的 Precision 衰减 ===
+   src深度  tgt深度        候选数      命中数  Precision
+  ----------------------------------------------
+
+=== 分析3：锚点 vs 传播候选 Precision 对比 ===
+  锚点数量: 0,  命中: 0,  Precision=0.0000
+  传播新增候选: 0,  命中: 0,  Precision=0.0000,  召回增益=0.0000
+  传播/锚点 Precision 比值: 0.0000  (无效，建议 depth=0)
+
+############################################################
+# anatomy
+############################################################
+
+数据集: anatomy
+实体数量: src=2744, tgt=3304
+  加载 biobert: shape=(2744, 3304), mean=0.7513, std=0.0710
+  加载 pubmedbert: shape=(2744, 3304), mean=0.8564, std=0.0369
+  加载 sapbert: shape=(2744, 3304), mean=0.3283, std=0.1421
+  加载 bioelectra: shape=(2744, 3304), mean=0.5850, std=0.1729
+  加载 scibert: shape=(2744, 3304), mean=0.6846, std=0.0930
+  加载 clinicalbert: shape=(2744, 3304), mean=0.7798, std=0.0665
+  加载 biogpt: shape=(2744, 3304), mean=0.2601, std=0.2014
+  加载 biogpt_large: shape=(2744, 3304), mean=0.0967, std=0.2604
+  加载 biomistral: shape=(2744, 3304), mean=0.3485, std=0.1496
+  加载 biomedlm: shape=(2744, 3304), mean=0.3173, std=0.1953
+  加载 pmcllama: shape=(2744, 3304), mean=0.1488, std=0.1666
+  加载 distilbert: shape=(2744, 3304), mean=0.9229, std=0.0291
+  加载 tinybert: shape=(2744, 3304), mean=0.9307, std=0.0373
+  加载 umlsbert: shape=(2744, 3304), mean=0.5280, std=0.0792
+  加载 biolinkbert: shape=(2744, 3304), mean=0.7563, std=0.1408
+  加载 biomedbert: shape=(2744, 3304), mean=0.8597, std=0.0423
+  加载 pubmedbert_emb: shape=(2744, 3304), mean=0.3016, std=0.1232
+  加载 e5base: shape=(2744, 3304), mean=0.7853, std=0.0501
+共加载 18 个相似度矩阵
+加载层次关系...
+  src: 2744实体, 1807条is-a, 1637条part-of
+  tgt: 3304实体, 3761条is-a, 1662条part-of
+加载标准对齐...
+  标准对齐数量: 1516
+  第一阶段：4026 个高置信度锚点（k=0.7）
+
+=== 分析1：结构保留率（全量）===
+  采样对数: 1516, 扩展候选总数: 11215972
+  命中: 38406,  全局 Precision=0.0034
+
+  类型                      候选数      命中数  Precision
+  ------------------------------------------------
+  isa×isa             8516310    30146     0.0035
+  isa×partof           345597      670     0.0019
+  partof×isa          1762324     3736     0.0021
+  partof×partof        591741     3854     0.0065
+
+=== 分析2：按传播深度的 Precision 衰减 ===
+   src深度  tgt深度        候选数      命中数  Precision
+  ----------------------------------------------
+       0      0       4026       40     0.0099
+       0      1      10115       66     0.0065
+       0      2      44912      158     0.0035
+       0      3     116504      174     0.0015
+       1      0      12660       60     0.0047
+       1      1      33084      209     0.0063
+       1      2     153967      465     0.0030
+       1      3     391518      543     0.0014
+       2      0      37592      105     0.0028
+       2      1      99121      340     0.0034
+       2      2     464941      951     0.0020
+       2      3    1199914     1477     0.0012
+       3      0      76540      123     0.0016
+       3      1     200918      371     0.0018
+       3      2     922839     1230     0.0013
+       3      3    2416787     2179     0.0009
+
+=== 分析3：锚点 vs 传播候选 Precision 对比 ===
+  锚点数量: 4026,  命中: 40,  Precision=0.0099
+  传播新增候选: 2438666,  命中: 991,  Precision=0.0004,  召回增益=0.6537
+  传播/锚点 Precision 比值: 0.0409  (无效，建议 depth=0)

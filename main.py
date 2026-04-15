@@ -5,6 +5,7 @@ GP本体匹配系统入口。
 用法:
   python main.py --mode debug
   python main.py --mode full
+  python main.py --dataset omim-ordo --mode debug
 """
 import argparse
 import json
@@ -17,6 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gp.gp_engine import run_gp
 from gp.operators import ALL_FILTER_METHODS
 from utils.data_loader import load_om_data, ALL_MODELS
+from utils.dataset_config import get_config, ALL_DATASETS
 from utils.augmented_psa import build_augmented_psa_from_files
 from utils.evaluator import evaluate
 
@@ -25,13 +27,19 @@ def parse_args():
     parser = argparse.ArgumentParser(description="GP本体匹配系统")
     parser.add_argument("--mode", default="debug", choices=["debug", "full"])
 
-    # 数据路径
+    # 数据集选择（指定后自动覆盖所有路径）
+    parser.add_argument("--dataset", default=None, choices=ALL_DATASETS,
+                        help="数据集名称，指定后自动填充所有路径参数")
+
+    # 数据路径（--dataset 未指定时使用，默认 anatomy）
     parser.add_argument("--emb_dir",       default="embeddings/anatomy")
     parser.add_argument("--src_entities",  default="data/parsed/mouse.json")
     parser.add_argument("--tgt_entities",  default="data/parsed/human.json")
     parser.add_argument("--src_hierarchy", default="data/parsed/mouse_hierarchy.json")
     parser.add_argument("--tgt_hierarchy", default="data/parsed/human_hierarchy.json")
     parser.add_argument("--reference",     default="data/oaei/anatomy/reference.rdf")
+    parser.add_argument("--ref_format",    default=None,
+                        help="reference格式：rdf 或 tsv（不填则自动判断）")
 
     # GP参数
     parser.add_argument("--population_size",  type=int,   default=None)
@@ -44,12 +52,12 @@ def parse_args():
     parser.add_argument("--max_depth",        type=int,   default=5)
 
     # 增强PSA参数
-    parser.add_argument("--psa_k",        type=float, default=0.7, help="第一阶段相似度阈值")
-    parser.add_argument("--psa_depth",    type=int,   default=3,   help="第二阶段传播深度")
-    parser.add_argument("--psa_thresh1",  type=float, default=1.0, help="Layer1字符串相似度阈值")
-    parser.add_argument("--psa_thresh2",  type=float, default=0.8, help="Layer2字符串相似度阈值")
-    parser.add_argument("--psa_w1",       type=float, default=0.7, help="Layer1权重")
-    parser.add_argument("--psa_w2",       type=float, default=0.3, help="Layer2权重")
+    parser.add_argument("--psa_k",      type=float, default=0.7,
+                        help="第一阶段多模型交集相似度阈值")
+    parser.add_argument("--psa_depth",  type=int,   default=3,
+                        help="第二阶段BFS传播深度")
+    parser.add_argument("--psa_thresh", type=float, default=1.0,
+                        help="第三阶段字符串相似度阈值")
 
     parser.add_argument("--output_dir", default="results")
     parser.add_argument("--run_id",     default=None)
@@ -58,6 +66,20 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    # ---- 数据集配置覆盖 ----
+    if args.dataset is not None:
+        cfg = get_config(args.dataset)
+        args.emb_dir       = cfg["emb_dir"]
+        args.src_entities  = cfg["src_entities"]
+        args.tgt_entities  = cfg["tgt_entities"]
+        args.src_hierarchy = cfg["src_hierarchy"]
+        args.tgt_hierarchy = cfg["tgt_hierarchy"]
+        args.reference     = cfg["reference"]
+        args.ref_format    = cfg.get("ref_format", None)
+        print(f"[数据集] {args.dataset}")
+    else:
+        print(f"[数据集] anatomy (默认)")
 
     if args.mode == "debug":
         pop_size = args.population_size or 10
@@ -81,21 +103,22 @@ def main():
         src_hierarchy=args.src_hierarchy,
         tgt_hierarchy=args.tgt_hierarchy,
         reference_path=args.reference,
+        ref_format=args.ref_format,
     )
 
     # 构建增强PSA
     print("\n=== 构建增强PSA ===")
+    _psa_cache_dir = cfg["psa_cache_dir"] if args.dataset else "data/parsed"
+    _psa_cache_path = os.path.join(_psa_cache_dir, "augmented_psa_cache.json")
     psa = build_augmented_psa_from_files(
         data,
         src_json_path=args.src_entities,
         tgt_json_path=args.tgt_entities,
         k=args.psa_k,
         max_depth=args.psa_depth,
-        thresh1=args.psa_thresh1,
-        thresh2=args.psa_thresh2,
+        thresh=args.psa_thresh,
         n_gram=2,
-        w1=args.psa_w1,
-        w2=args.psa_w2,
+        cache_path=_psa_cache_path,
     )
 
     # 运行GP
@@ -118,7 +141,7 @@ def main():
 
     # 最终评估
     print("\n=== 最终评估 ===")
-    best_alignment    = best_individual.evaluate(data)
+    best_alignment = best_individual.evaluate(data)
     precision, recall, f1 = evaluate(best_alignment, data)
     print(f"Precision: {precision:.4f}")
     print(f"Recall:    {recall:.4f}")
@@ -127,14 +150,14 @@ def main():
     # 保存结果
     results = {
         "run_id":          run_id,
+        "dataset":         args.dataset or "anatomy",
         "mode":            args.mode,
         "population_size": pop_size,
         "max_generations": max_gen,
         "psa_config": {
             "k": args.psa_k, "depth": args.psa_depth,
-            "thresh1": args.psa_thresh1, "thresh2": args.psa_thresh2,
-            "w1": args.psa_w1, "w2": args.psa_w2,
-            "layer1_size": len(psa.layer1), "layer2_size": len(psa.layer2),
+            "thresh": args.psa_thresh,
+            "psa_size": len(psa),
         },
         "final_precision": precision,
         "final_recall":    recall,

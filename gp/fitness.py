@@ -19,9 +19,10 @@ if TYPE_CHECKING:
 
 
 # ============================================================
-# 全局缓存：key=tree_hash, value=(alignment_matrix, approx_f1)
+# 全局缓存：key=tree_hash, value=approx_f1（只存标量，不存矩阵）
+# 大矩阵（340MB/个）缓存会快速耗尽内存，用计算换内存。
 # ============================================================
-_EVAL_CACHE: Dict[str, Tuple[np.ndarray, float]] = {}
+_EVAL_CACHE: Dict[str, float] = {}
 
 
 def clear_cache():
@@ -70,8 +71,7 @@ def evaluate_individual(individual,
     key = tree_hash(individual)
 
     if key in _EVAL_CACHE:
-        alignment_matrix, approx_f1 = _EVAL_CACHE[key]
-        individual._alignment_cache = alignment_matrix
+        approx_f1 = _EVAL_CACHE[key]
         individual.fitness = approx_f1
         return approx_f1
 
@@ -85,7 +85,7 @@ def evaluate_individual(individual,
     )
     individual.fitness = approx_f1
 
-    _EVAL_CACHE[key] = (alignment_matrix, approx_f1)
+    _EVAL_CACHE[key] = approx_f1
     return approx_f1
 
 

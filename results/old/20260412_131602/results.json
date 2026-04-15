@@ -1,0 +1,44 @@
+{
+  "run_id": "20260412_131602",
+  "dataset": "omim-ordo",
+  "mode": "debug",
+  "population_size": 5,
+  "max_generations": 1,
+  "psa_config": {
+    "k": 0.7,
+    "depth": 3,
+    "thresh": 1.0,
+    "psa_size": 348
+  },
+  "final_precision": 0.2071917808219178,
+  "final_recall": 0.5202902445579145,
+  "final_f1": 0.2963643321852277,
+  "best_fitness": 0.3208095843716814,
+  "best_models": [
+    "pubmedbert_emb",
+    "pubmedbert",
+    "pubmedbert",
+    "tinybert",
+    "pubmedbert_emb",
+    "biobert",
+    "pmcllama",
+    "biomedlm"
+  ],
+  "generation_logs": [
+    {
+      "gen": 1,
+      "best": 0.3208095843716814,
+      "gen_best": 0.3208095843716814,
+      "mean": 0.06760098165849152,
+      "std": 0.12666060277279517,
+      "time": 158.50329749599996,
+      "stage_times": {
+        "elite": 0.00014318400008050958,
+        "tournament+crossover": 1.0314490900000237,
+        "mutation": 3.3925000025192276e-05,
+        "evaluate_new": 157.47166019299993,
+        "merge+update": 1.110399989556754e-05
+      }
+    }
+  ]
+}

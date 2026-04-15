@@ -82,7 +82,7 @@ class CombinationNode:
     def evaluate(self, sim_matrices: Dict[str, np.ndarray]) -> np.ndarray:
         """递归计算组合树，返回float相似度矩阵"""
         if self.is_leaf:
-            return sim_matrices[self.model_name].copy()
+            return sim_matrices[self.model_name]  # 不复制，算术操作会产生新数组
         left_val  = self.left.evaluate(sim_matrices)
         right_val = self.right.evaluate(sim_matrices)
         return ARITHMETIC_OPS[self.op_name](left_val, right_val)

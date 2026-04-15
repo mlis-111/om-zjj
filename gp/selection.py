@@ -81,24 +81,15 @@ def compute_diversity(individual: "Individual") -> float:
 
 
 def compute_reliability(individual: "Individual",
-                        data: "OMData",
-                        max_pairs: int = 500) -> float:
+                        data: "OMData") -> float:
     """
-    计算个体对齐结果的可靠性（层次一致性）。
-
-    算法：O(k×L)，只检查源侧有层次关系的对。
+    计算个体对齐结果的可靠性（层次一致性，O(k×L)）。
 
     对每个匹配对(c1,c2)，遍历c1的所有直接超类super_c1：
       - 若super_c1也在匹配对里（即super_c1→super_c2存在），
         则检查目标侧：super_c2是否是c2的超类
       - 若不是 → 冲突
-
-    分母只统计"有层次关系的对数"，语义更精准。
-
-    Args:
-        individual: GP个体（需已调用evaluate()）
-        data:       OMData（包含层次关系）
-        max_pairs:  对齐数量过多时随机采样上限
+    reliability = 1 - 冲突数 / 有层次关系的对数
 
     Returns:
         reliability in [0, 1]
@@ -106,17 +97,12 @@ def compute_reliability(individual: "Individual",
     alignment = individual.get_alignment()
 
     if len(alignment) < 2:
-        # print("  对齐对数不足，可靠性设为0.0")
         return 0.0
 
     src_hier = data.src_hierarchy
     tgt_hier = data.tgt_hierarchy
 
-    # src_to_tgt用完整对齐构建，确保超类查找不遗漏
     src_to_tgt: Dict[int, int] = {c1: c2 for c1, c2 in alignment}
-
-    # 只对外层循环采样，减少计算量
-    sample = alignment if len(alignment) <= max_pairs else random.sample(alignment, max_pairs)
 
     tgt_parents_set: Dict[int, Set[int]] = {
         k: set(v) for k, v in tgt_hier.parents.items()
@@ -125,7 +111,7 @@ def compute_reliability(individual: "Individual",
     conflict_count = 0
     checked: Set[Tuple[int, int]] = set()
 
-    for c1, c2 in sample:
+    for c1, c2 in alignment:
         for super_c1 in src_hier.parents.get(c1, []):
             if super_c1 not in src_to_tgt:
                 continue
